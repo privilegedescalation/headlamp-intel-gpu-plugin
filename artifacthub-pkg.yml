@@ -1,4 +1,4 @@
-version: "0.2.0"
+version: "0.3.0"
 name: headlamp-intel-gpu-plugin
 displayName: Intel GPU
 description: >-
@@ -15,7 +15,7 @@ license: Apache-2.0
 category: monitoring-logging
 
 homeURL: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
-appVersion: "0.2.0"
+appVersion: "0.3.0"
 
 keywords:
   - headlamp
@@ -46,6 +46,8 @@ links:
 
 changes:
   - kind: added
+    description: "Metrics page: document which metrics require what infrastructure (power via hwmon works out of the box; frequency and utilization need custom exporters)"
+  - kind: added
     description: "Metrics page: real-time GPU power draw (W) and TDP via node-exporter i915 hwmon metrics in kube-prometheus-stack"
   - kind: changed
     description: "Sidebar label changed to intel-gpu"
@@ -69,7 +71,7 @@ changes:
     description: "App bar health badge: hidden when no Intel GPU plugin detected"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.2.0/headlamp-intel-gpu-plugin-0.2.0.tar.gz"
-  headlamp/plugin/archive-checksum: "sha256:cbcd20916d72e91ccc36143c74680fbeb2f045e1cbe6d1cc0d844b198e2a1ea5"
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.3.0/headlamp-intel-gpu-plugin-0.3.0.tar.gz"
+  headlamp/plugin/archive-checksum: "sha256:fdc53099ee3123680f24fe4a319b753ca3d030aac31abd4e3f383221085c9c2d"
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
