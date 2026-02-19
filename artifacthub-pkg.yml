@@ -1,0 +1,67 @@
+version: "0.1.0"
+name: headlamp-intel-gpu-plugin
+displayName: Intel GPU
+description: >-
+  Headlamp plugin for Intel GPU device plugin visibility and monitoring.
+  Surfaces GpuDevicePlugin CRD status, GPU-capable nodes with capacity and
+  allocation, pods requesting Intel GPU resources, and injects Intel GPU
+  sections into native Node and Pod detail pages. Supports discrete (i915),
+  Xe, and integrated GPU nodes with graceful degradation when the device
+  plugin operator is not installed.
+createdAt: "2026-02-18T00:00:00Z"
+license: Apache-2.0
+category: monitoring-logging
+
+homeURL: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
+appVersion: "0.1.0"
+
+keywords:
+  - headlamp
+  - kubernetes
+  - intel
+  - gpu
+  - intel-gpu
+  - device-plugin
+  - i915
+  - xe
+  - monitoring
+  - node-feature-discovery
+
+maintainers:
+  - name: privilegedescalation
+    email: chris@farhood.org
+
+provider:
+  name: privilegedescalation
+
+links:
+  - name: GitHub
+    url: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
+  - name: Issues
+    url: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/issues
+  - name: Intel Device Plugins for Kubernetes
+    url: https://intel.github.io/intel-device-plugins-for-kubernetes/
+
+changes:
+  - kind: added
+    description: "Overview dashboard: plugin health, GPU node summary, allocation bar, active GPU pods"
+  - kind: added
+    description: "Device Plugins page: GpuDevicePlugin CRD instances with spec/status and daemon pods"
+  - kind: added
+    description: "GPU Nodes page: per-node GPU type, device count, allocation, workload pods"
+  - kind: added
+    description: "GPU Pods page: all pods requesting Intel GPU resources with per-container detail"
+  - kind: added
+    description: "Node detail injection: Intel GPU section on native Node detail pages (capacity, allocatable, utilization, active pods)"
+  - kind: added
+    description: "Pod detail injection: GPU resource requests/limits per container on native Pod detail pages"
+  - kind: added
+    description: "Nodes table: GPU Type and GPU Devices columns injected into native Nodes table"
+  - kind: added
+    description: "App bar health badge: hidden when no Intel GPU plugin detected"
+
+annotations:
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.1.0/headlamp-intel-gpu-plugin-0.1.0.tar.gz"
+  headlamp/plugin/archive-checksum: "sha256:d6a50567d0f9e537f0edadac334d6a03cd182f5b64b47264577f2213fd882687"
+  headlamp/plugin/version-compat: ">=0.20.0"
+  headlamp/plugin/distro-compat: "in-cluster,web,app"
