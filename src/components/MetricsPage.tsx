@@ -1,9 +1,29 @@
 /**
- * MetricsPage — Intel GPU power metrics from Prometheus (node-exporter hwmon).
+ * MetricsPage — Intel GPU metrics from Prometheus (node-exporter hwmon).
  *
- * The Intel i915/Xe GPU driver exposes hwmon sensors which node-exporter scrapes.
- * This page queries kube-prometheus-stack for real-time GPU power draw
- * (derived from node_hwmon_energy_joule_total rate) and TDP per GPU node.
+ * METRIC AVAILABILITY
+ * -------------------
+ * Power (current W, TDP)
+ *   Source:   node_hwmon_energy_joule_total, node_hwmon_power_max_watt
+ *   Driver:   i915 hwmon sysfs (/sys/class/drm/card{N}/device/hwmon/)
+ *   Scraped:  node-exporter hwmon collector (enabled by default)
+ *   Nodes:    Discrete GPU nodes only (i915 driver exposes hwmon; iGPU driver does not)
+ *   No extra config required — works out of the box with kube-prometheus-stack.
+ *
+ * GPU Frequency (current, boost, min, max MHz)
+ *   Source:   DRM sysfs (/sys/class/drm/card{N}/gt_{x}_freq_mhz)
+ *   Driver:   i915 kernel driver
+ *   Scraped:  NOT available -- node-exporter --collector.drm is AMD-only and does not
+ *             read i915 gt_freq sysfs files. Would require a custom exporter or
+ *             node-exporter textfile collector sidecar writing these values.
+ *
+ * GPU Utilization (engine busy %)
+ *   Source:   Not exposed via hwmon or any standard Prometheus collector for i915.
+ *             Would require intel-gpu-top, XPU Manager, or a custom DRM-based exporter.
+ *
+ * Integrated GPU (iGPU) nodes
+ *   The iGPU driver does not expose hwmon sensors. No Prometheus metrics are
+ *   available for iGPU nodes regardless of configuration.
  */
 
 import {
@@ -69,19 +89,13 @@ function GpuChipCard({ chip }: { chip: GpuChipMetrics }) {
   const rows: Array<{ name: string; value: React.ReactNode }> = [
     { name: 'Node', value: chip.nodeName },
     { name: 'GPU (PCI)', value: chip.chip },
+    {
+      name: 'Current Power',
+      value: chip.powerWatts !== null
+        ? <PowerBar watts={chip.powerWatts} maxWatts={chip.powerMaxWatts} />
+        : <StatusLabel status="warning">No data — needs ≥5m of scrape history</StatusLabel>,
+    },
   ];
-
-  if (chip.powerWatts !== null) {
-    rows.push({
-      name: 'Current Power',
-      value: <PowerBar watts={chip.powerWatts} maxWatts={chip.powerMaxWatts} />,
-    });
-  } else {
-    rows.push({
-      name: 'Current Power',
-      value: <StatusLabel status="warning">No data (needs ≥5m of scrape history)</StatusLabel>,
-    });
-  }
 
   if (chip.powerMaxWatts !== null && chip.powerMaxWatts > 0) {
     rows.push({ name: 'TDP', value: formatWatts(chip.powerMaxWatts) });
@@ -90,6 +104,70 @@ function GpuChipCard({ chip }: { chip: GpuChipMetrics }) {
   return (
     <SectionBox title={`${chip.nodeName} — ${chip.chip}`}>
       <NameValueTable rows={rows} />
+    </SectionBox>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Requirements info box
+// ---------------------------------------------------------------------------
+
+function MetricRequirements() {
+  return (
+    <SectionBox title="Metric Availability">
+      <NameValueTable
+        rows={[
+          {
+            name: 'Power (W)',
+            value: (
+              <>
+                <StatusLabel status="success">Available — discrete GPU nodes</StatusLabel>
+                <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
+                  Source: <code>node_hwmon_energy_joule_total</code> via node-exporter hwmon collector (enabled by default).
+                  Requires the i915 kernel driver on the node. iGPU nodes do not expose hwmon sensors.
+                </div>
+              </>
+            ),
+          },
+          {
+            name: 'Frequency (MHz)',
+            value: (
+              <>
+                <StatusLabel status="error">Not available</StatusLabel>
+                <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
+                  i915 exposes <code>gt_*_freq_mhz</code> via DRM sysfs but node-exporter&apos;s{' '}
+                  <code>--collector.drm</code> flag is AMD-only and does not read these files.
+                  A custom exporter or textfile-collector sidecar writing these values would be required.
+                </div>
+              </>
+            ),
+          },
+          {
+            name: 'Utilization (%)',
+            value: (
+              <>
+                <StatusLabel status="error">Not available</StatusLabel>
+                <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
+                  No standard Prometheus collector exposes i915 engine busy percentage.
+                  Would require intel-gpu-top, XPU Manager, or a custom DRM-based exporter.
+                </div>
+              </>
+            ),
+          },
+          {
+            name: 'iGPU nodes',
+            value: (
+              <>
+                <StatusLabel status="error">No metrics available</StatusLabel>
+                <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
+                  The integrated GPU driver does not expose hwmon sensors. No Prometheus metrics
+                  are available for iGPU nodes regardless of configuration.
+                </div>
+              </>
+            ),
+          },
+        ]}
+      />
     </SectionBox>
   );
 }
@@ -154,10 +232,12 @@ export default function MetricsPage() {
         </button>
       </div>
 
+      <MetricRequirements />
+
       {fetching && !metrics && <Loader title="Querying Prometheus for GPU metrics..." />}
 
       {fetchError && (
-        <SectionBox title="Metrics Unavailable">
+        <SectionBox title="Prometheus Unreachable">
           <NameValueTable
             rows={[
               {
@@ -165,12 +245,8 @@ export default function MetricsPage() {
                 value: <StatusLabel status="error">{fetchError}</StatusLabel>,
               },
               {
-                name: 'Data Source',
-                value: 'node_hwmon_energy_joule_total (chip_name="i915") via kube-prometheus-stack',
-              },
-              {
-                name: 'Requirements',
-                value: 'kube-prometheus-stack installed in monitoring namespace with node-exporter enabled',
+                name: 'Checked services',
+                value: 'kube-prometheus-stack-prometheus:9090, prometheus-operated:9090, prometheus:9090 (monitoring namespace)',
               },
             ]}
           />
@@ -178,27 +254,24 @@ export default function MetricsPage() {
       )}
 
       {metrics && metrics.chips.length === 0 && (
-        <SectionBox title="No i915 GPU Metrics Found">
+        <SectionBox title="No i915 Metrics in Prometheus">
           <NameValueTable
             rows={[
               {
                 name: 'Status',
                 value: (
                   <StatusLabel status="warning">
-                    Prometheus is reachable but no i915 hwmon chips found
+                    Prometheus reachable — no node_hwmon_chip_names&#123;chip_name=&quot;i915&quot;&#125; found
                   </StatusLabel>
                 ),
               },
               {
-                name: 'Note',
-                value: 'The i915 driver exposes hwmon sensors on discrete Intel GPU nodes. ' +
-                  'Ensure node-exporter is running on GPU nodes with hwmon collector enabled.',
+                name: 'GPU Nodes',
+                value: gpuNodes.length > 0 ? gpuNodes.map(n => n.metadata.name).join(', ') : 'None detected',
               },
               {
-                name: 'GPU Nodes',
-                value: gpuNodes.length > 0
-                  ? gpuNodes.map(n => n.metadata.name).join(', ')
-                  : 'None detected',
+                name: 'Likely cause',
+                value: 'node-exporter is not running on the GPU nodes, or the hwmon collector is disabled.',
               },
             ]}
           />
@@ -227,8 +300,8 @@ export default function MetricsPage() {
                   value: new Date(metrics.fetchedAt).toLocaleTimeString(),
                 },
                 {
-                  name: 'Data Source',
-                  value: 'node-exporter hwmon · i915 driver · rate(node_hwmon_energy_joule_total[5m])',
+                  name: 'Query',
+                  value: 'rate(node_hwmon_energy_joule_total[5m]) joined with node_hwmon_chip_names{chip_name="i915"}',
                 },
               ]}
             />
