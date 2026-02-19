@@ -1,4 +1,4 @@
-version: "0.1.0"
+version: "0.2.0"
 name: headlamp-intel-gpu-plugin
 displayName: Intel GPU
 description: >-
@@ -7,13 +7,15 @@ description: >-
   allocation, pods requesting Intel GPU resources, and injects Intel GPU
   sections into native Node and Pod detail pages. Supports discrete (i915),
   Xe, and integrated GPU nodes with graceful degradation when the device
-  plugin operator is not installed.
+  plugin operator is not installed. Includes a Metrics page showing real-time
+  engine utilization, GPU frequency, VRAM usage, and energy from the device
+  plugin's Prometheus endpoint.
 createdAt: "2026-02-18T00:00:00Z"
 license: Apache-2.0
 category: monitoring-logging
 
 homeURL: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
-appVersion: "0.1.0"
+appVersion: "0.2.0"
 
 keywords:
   - headlamp
@@ -44,6 +46,12 @@ links:
 
 changes:
   - kind: added
+    description: "Metrics page: real-time engine utilization, boost frequency, VRAM usage, and energy from Intel GPU device plugin Prometheus endpoint (port 9090)"
+  - kind: changed
+    description: "Sidebar label changed to intel-gpu"
+  - kind: removed
+    description: "Removed app bar health badge"
+  - kind: added
     description: "Overview dashboard: plugin health, GPU node summary, allocation bar, active GPU pods"
   - kind: added
     description: "Device Plugins page: GpuDevicePlugin CRD instances with spec/status and daemon pods"
@@ -61,7 +69,7 @@ changes:
     description: "App bar health badge: hidden when no Intel GPU plugin detected"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.1.0/headlamp-intel-gpu-plugin-0.1.0.tar.gz"
-  headlamp/plugin/archive-checksum: "sha256:d6a50567d0f9e537f0edadac334d6a03cd182f5b64b47264577f2213fd882687"
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.2.0/headlamp-intel-gpu-plugin-0.2.0.tar.gz"
+  headlamp/plugin/archive-checksum: "sha256:404be582bd13c167f61785028eb6eb91dd621106cbe76038f2c071a576a1a442"
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"

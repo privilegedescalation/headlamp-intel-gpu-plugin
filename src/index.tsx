@@ -1,20 +1,17 @@
 /**
  * headlamp-intel-gpu-plugin — entry point.
  *
- * Registers sidebar entries, routes, detail view sections, table column
- * processors, and app bar action for Intel GPU device plugin visibility
- * in Headlamp.
+ * Registers sidebar entries, routes, detail view sections, and table column
+ * processors for Intel GPU device plugin visibility in Headlamp.
  *
  * Surfaces Intel GPU information in the following places:
- *   - Dedicated sidebar section: Overview / Device Plugins / Nodes / Pods
+ *   - Dedicated sidebar section: Overview / Device Plugins / Nodes / Pods / Metrics
  *   - Native Node detail page: Intel GPU section (capacity, utilization, pods)
  *   - Native Pod detail page: GPU resource requests per container
  *   - Native Nodes table: GPU Type and GPU Devices columns
- *   - App bar: health badge (hidden when plugin not installed)
  */
 
 import {
-  registerAppBarAction,
   registerDetailsViewSection,
   registerResourceTableColumnsProcessor,
   registerRoute,
@@ -22,9 +19,9 @@ import {
 } from '@kinvolk/headlamp-plugin/lib';
 import React from 'react';
 import { IntelGpuDataProvider } from './api/IntelGpuDataContext';
-import AppBarGpuBadge from './components/AppBarGpuBadge';
 import DevicePluginsPage from './components/DevicePluginsPage';
 import { buildNodeGpuColumns } from './components/integrations/NodeColumns';
+import MetricsPage from './components/MetricsPage';
 import NodeDetailSection from './components/NodeDetailSection';
 import NodesPage from './components/NodesPage';
 import OverviewPage from './components/OverviewPage';
@@ -38,7 +35,7 @@ import PodsPage from './components/PodsPage';
 registerSidebarEntry({
   parent: null,
   name: 'intel-gpu',
-  label: 'Intel GPU',
+  label: 'intel-gpu',
   url: '/intel-gpu',
   icon: 'mdi:gpu',
 });
@@ -73,6 +70,14 @@ registerSidebarEntry({
   label: 'GPU Pods',
   url: '/intel-gpu/pods',
   icon: 'mdi:cube-outline',
+});
+
+registerSidebarEntry({
+  parent: 'intel-gpu',
+  name: 'intel-gpu-metrics',
+  label: 'Metrics',
+  url: '/intel-gpu/metrics',
+  icon: 'mdi:chart-line',
 });
 
 // ---------------------------------------------------------------------------
@@ -127,6 +132,18 @@ registerRoute({
   ),
 });
 
+registerRoute({
+  path: '/intel-gpu/metrics',
+  sidebar: 'intel-gpu-metrics',
+  name: 'intel-gpu-metrics',
+  exact: true,
+  component: () => (
+    <IntelGpuDataProvider>
+      <MetricsPage />
+    </IntelGpuDataProvider>
+  ),
+});
+
 // ---------------------------------------------------------------------------
 // Detail view section — Node pages
 // Inject Intel GPU section into native Node detail page for GPU nodes.
@@ -164,12 +181,3 @@ registerResourceTableColumnsProcessor(({ id, columns }) => {
   return columns;
 });
 
-// ---------------------------------------------------------------------------
-// App bar action — Intel GPU health badge
-// ---------------------------------------------------------------------------
-
-registerAppBarAction(() => (
-  <IntelGpuDataProvider>
-    <AppBarGpuBadge />
-  </IntelGpuDataProvider>
-));
