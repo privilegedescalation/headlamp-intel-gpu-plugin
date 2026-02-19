@@ -1,16 +1,15 @@
 /**
- * Prometheus text format parser for Intel GPU device plugin metrics.
+ * Intel GPU metrics via Prometheus (kube-prometheus-stack).
  *
- * Fetches raw metrics from the Intel GPU device plugin pod (port 9090)
- * via the Kubernetes API proxy and parses key metric families.
+ * The Intel i915/Xe GPU driver exposes hwmon sensors that node-exporter
+ * scrapes automatically. We query Prometheus for:
+ *   - node_hwmon_energy_joule_total  (chip_name="i915") → rate = power in W
+ *   - node_hwmon_power_max_watt      (same chip)        → TDP
+ *   - node_hwmon_chip_names          (chip_name="i915") → identify GPU chips
+ *   - node_uname_info                                   → instance → nodename
  *
- * Metrics exposed by intel-gpu-plugin when enableMonitoring: true:
- *   gpu_i915_engine_active_ticks  — engine busy ticks (per card, engine)
- *   gpu_i915_engine_total_ticks   — engine total ticks (for utilization %)
- *   gpu_i915_energy_microjoules   — cumulative energy (µJ → power = delta/dt)
- *   gpu_i915_gt_boost_freq_mhz    — current GT boost frequency (MHz)
- *   gpu_i915_memory_local         — local (VRAM) memory usage (bytes)
- *   gpu_i915_memory_system        — system memory usage (bytes)
+ * Queries go through the Kubernetes API proxy to the in-cluster Prometheus
+ * service: /api/v1/namespaces/monitoring/services/{svc}:{port}/proxy/...
  */
 
 import { ApiProxy } from '@kinvolk/headlamp-plugin/lib';
@@ -19,239 +18,152 @@ import { ApiProxy } from '@kinvolk/headlamp-plugin/lib';
 // Types
 // ---------------------------------------------------------------------------
 
-export interface MetricSample {
-  labels: Record<string, string>;
-  value: number;
-}
-
-export interface MetricFamily {
-  name: string;
-  help: string;
-  type: string;
-  samples: MetricSample[];
-}
-
-export type ParsedMetrics = Map<string, MetricFamily>;
-
-export interface GpuNodeMetrics {
-  /** Node name this metric set was fetched from (via plugin pod) */
+export interface GpuChipMetrics {
+  /** Kubernetes node name (e.g. "buttons") */
   nodeName: string;
-  /** Pod name of the intel-gpu-plugin daemonset pod */
-  podName: string;
-  /** Engine utilization per (card, engine): 0–100 */
-  engineUtilization: Array<{ card: string; engine: string; pct: number }>;
-  /** Current GT boost frequency in MHz per card */
-  boostFreqMhz: Array<{ card: string; value: number }>;
-  /** Local VRAM usage in bytes per card */
-  memoryLocalBytes: Array<{ card: string; value: number }>;
-  /** System memory usage in bytes per card */
-  memorySystemBytes: Array<{ card: string; value: number }>;
-  /** Cumulative energy in µJ per card (raw counter; compute delta for power) */
-  energyMicrojoules: Array<{ card: string; value: number }>;
-  /** Raw parsed metric families for advanced use */
-  raw: ParsedMetrics;
+  /** PCI chip address (e.g. "0000:09:01_0_0000:0a:00_0") */
+  chip: string;
+  /** node-exporter instance (IP:port) */
+  instance: string;
+  /** Current power draw in watts (rate of energy counter, null if unavailable) */
+  powerWatts: number | null;
+  /** Maximum / TDP power in watts */
+  powerMaxWatts: number | null;
+}
+
+export interface GpuMetrics {
+  chips: GpuChipMetrics[];
+  /** ISO timestamp of when metrics were fetched */
+  fetchedAt: string;
 }
 
 // ---------------------------------------------------------------------------
-// Prometheus text format parser
+// Prometheus query helper
 // ---------------------------------------------------------------------------
 
-const LABEL_PAIR_RE = /(\w+)="([^"]*)"/g;
-
-function parseLabels(labelStr: string): Record<string, string> {
-  const labels: Record<string, string> = {};
-  let match: RegExpExecArray | null;
-  const re = new RegExp(LABEL_PAIR_RE.source, 'g');
-  while ((match = re.exec(labelStr)) !== null) {
-    const key = match[1];
-    const val = match[2];
-    if (key && val !== undefined) {
-      labels[key] = val;
-    }
-  }
-  return labels;
+interface PrometheusResult {
+  metric: Record<string, string>;
+  value: [number, string];
 }
 
-export function parsePrometheusText(text: string): ParsedMetrics {
-  const families = new Map<string, MetricFamily>();
-  let currentName = '';
-  let currentHelp = '';
-  let currentType = '';
-
-  for (const rawLine of text.split('\n')) {
-    const line = rawLine.trim();
-    if (!line) continue;
-
-    if (line.startsWith('# HELP ')) {
-      const rest = line.slice(7);
-      const spaceIdx = rest.indexOf(' ');
-      currentName = spaceIdx >= 0 ? rest.slice(0, spaceIdx) : rest;
-      currentHelp = spaceIdx >= 0 ? rest.slice(spaceIdx + 1) : '';
-      continue;
-    }
-
-    if (line.startsWith('# TYPE ')) {
-      const rest = line.slice(7);
-      const spaceIdx = rest.indexOf(' ');
-      currentType = spaceIdx >= 0 ? rest.slice(spaceIdx + 1) : '';
-      continue;
-    }
-
-    if (line.startsWith('#')) continue;
-
-    const openBrace = line.indexOf('{');
-    const closeBrace = line.lastIndexOf('}');
-
-    let metricName: string;
-    let labels: Record<string, string>;
-    let valuePart: string;
-
-    if (openBrace >= 0 && closeBrace > openBrace) {
-      metricName = line.slice(0, openBrace);
-      labels = parseLabels(line.slice(openBrace + 1, closeBrace));
-      valuePart = line.slice(closeBrace + 1).trim();
-    } else {
-      const spaceIdx = line.lastIndexOf(' ');
-      if (spaceIdx < 0) continue;
-      metricName = line.slice(0, spaceIdx);
-      labels = {};
-      valuePart = line.slice(spaceIdx + 1).trim();
-    }
-
-    const valueTokens = valuePart.split(' ');
-    const valueStr = valueTokens[0] ?? '';
-    const value = parseFloat(valueStr);
-    if (!Number.isFinite(value)) continue;
-
-    const familyKey = metricName;
-    let family = families.get(familyKey);
-    if (!family) {
-      family = {
-        name: familyKey,
-        help: metricName === currentName ? currentHelp : '',
-        type: metricName === currentName ? currentType : '',
-        samples: [],
-      };
-      families.set(familyKey, family);
-    }
-
-    family.samples.push({ labels, value });
-  }
-
-  return families;
-}
-
-// ---------------------------------------------------------------------------
-// Extract Intel GPU metrics from the parsed map
-// ---------------------------------------------------------------------------
-
-function samplesFor(families: ParsedMetrics, name: string): MetricSample[] {
-  return families.get(name)?.samples ?? [];
-}
-
-export function extractGpuNodeMetrics(
-  families: ParsedMetrics,
-  nodeName: string,
-  podName: string
-): GpuNodeMetrics {
-  const activeSamples = samplesFor(families, 'gpu_i915_engine_active_ticks');
-  const totalSamples = samplesFor(families, 'gpu_i915_engine_total_ticks');
-
-  // Build utilization: active/total per (card, engine)
-  const engineUtilization: GpuNodeMetrics['engineUtilization'] = [];
-  for (const active of activeSamples) {
-    const card = active.labels['card'] ?? active.labels['gpu'] ?? 'gpu0';
-    const engine = active.labels['engine'] ?? 'render/0';
-    const totalSample = totalSamples.find(
-      s =>
-        (s.labels['card'] ?? s.labels['gpu']) === card &&
-        s.labels['engine'] === engine
-    );
-    const total = totalSample?.value ?? 0;
-    const pct = total > 0 ? Math.min(100, Math.round((active.value / total) * 100)) : 0;
-    engineUtilization.push({ card, engine, pct });
-  }
-
-  // Boost frequency
-  const boostFreqMhz = samplesFor(families, 'gpu_i915_gt_boost_freq_mhz').map(s => ({
-    card: s.labels['card'] ?? s.labels['gpu'] ?? 'gpu0',
-    value: s.value,
-  }));
-
-  // Memory
-  const memoryLocalBytes = samplesFor(families, 'gpu_i915_memory_local').map(s => ({
-    card: s.labels['card'] ?? s.labels['gpu'] ?? 'gpu0',
-    value: s.value,
-  }));
-  const memorySystemBytes = samplesFor(families, 'gpu_i915_memory_system').map(s => ({
-    card: s.labels['card'] ?? s.labels['gpu'] ?? 'gpu0',
-    value: s.value,
-  }));
-
-  // Energy
-  const energyMicrojoules = samplesFor(families, 'gpu_i915_energy_microjoules').map(s => ({
-    card: s.labels['card'] ?? s.labels['gpu'] ?? 'gpu0',
-    value: s.value,
-  }));
-
-  return {
-    nodeName,
-    podName,
-    engineUtilization,
-    boostFreqMhz,
-    memoryLocalBytes,
-    memorySystemBytes,
-    energyMicrojoules,
-    raw: families,
+interface PrometheusResponse {
+  status: string;
+  data: {
+    resultType: string;
+    result: PrometheusResult[];
   };
 }
 
-// ---------------------------------------------------------------------------
-// Fetch metrics from an Intel GPU device plugin pod
-// ---------------------------------------------------------------------------
-
 /**
- * Fetches and parses Prometheus metrics from an Intel GPU device plugin pod.
- *
- * The proxy path is:
- *   /api/v1/namespaces/{namespace}/pods/{podName}:9090/proxy/metrics
- *
- * Returns null if the pod is not exposing metrics (enableMonitoring: false)
- * or if the proxy request fails.
+ * Service discovery: find the Prometheus service.
+ * Tries the kube-prometheus-stack default name; falls back to prometheus-operated.
  */
-export async function fetchGpuPluginMetrics(
-  podName: string,
-  namespace: string,
-  nodeName: string
-): Promise<GpuNodeMetrics | null> {
-  const path = `/api/v1/namespaces/${namespace}/pods/${podName}:9090/proxy/metrics`;
+const PROMETHEUS_SERVICES = [
+  { namespace: 'monitoring', service: 'kube-prometheus-stack-prometheus', port: '9090' },
+  { namespace: 'monitoring', service: 'prometheus-operated', port: '9090' },
+  { namespace: 'monitoring', service: 'prometheus', port: '9090' },
+];
 
-  try {
-    const raw: unknown = await ApiProxy.request(path, {
-      method: 'GET',
-      isJSON: false,
-    });
+async function queryPrometheus(
+  query: string,
+  prometheusPath: string
+): Promise<PrometheusResult[]> {
+  const encoded = encodeURIComponent(query);
+  const path = `${prometheusPath}/api/v1/query?query=${encoded}`;
 
-    if (typeof raw !== 'string') return null;
+  const raw = await ApiProxy.request(path, { method: 'GET' }) as PrometheusResponse;
 
-    const families = parsePrometheusText(raw);
-    return extractGpuNodeMetrics(families, nodeName, podName);
-  } catch {
-    return null;
+  if (raw?.status !== 'success') return [];
+  return raw.data?.result ?? [];
+}
+
+async function findPrometheusPath(): Promise<string | null> {
+  for (const { namespace, service, port } of PROMETHEUS_SERVICES) {
+    const basePath = `/api/v1/namespaces/${namespace}/services/${service}:${port}/proxy`;
+    try {
+      const raw = await ApiProxy.request(`${basePath}/api/v1/query?query=1`, { method: 'GET' }) as PrometheusResponse;
+      if (raw?.status === 'success') return basePath;
+    } catch {
+      // try next
+    }
   }
+  return null;
+}
+
+// ---------------------------------------------------------------------------
+// Metrics fetch
+// ---------------------------------------------------------------------------
+
+export async function fetchGpuMetrics(): Promise<GpuMetrics | null> {
+  const prometheusPath = await findPrometheusPath();
+  if (!prometheusPath) return null;
+
+  // Run queries in parallel
+  const [chipResults, energyRateResults, powerMaxResults, unameResults] = await Promise.all([
+    // i915 chip identification
+    queryPrometheus('node_hwmon_chip_names{chip_name="i915"}', prometheusPath),
+    // Current power (rate of cumulative energy counter)
+    queryPrometheus(
+      'rate(node_hwmon_energy_joule_total[5m]) * on(chip,instance) group_left(chip_name) node_hwmon_chip_names{chip_name="i915"}',
+      prometheusPath
+    ),
+    // TDP / max power
+    queryPrometheus(
+      'node_hwmon_power_max_watt * on(chip,instance) group_left(chip_name) node_hwmon_chip_names{chip_name="i915"}',
+      prometheusPath
+    ),
+    // instance → nodename mapping
+    queryPrometheus('node_uname_info', prometheusPath),
+  ]);
+
+  // Build instance → nodename map
+  const instanceToNode = new Map<string, string>();
+  for (const r of unameResults) {
+    const inst = r.metric['instance'];
+    const nodename = r.metric['nodename'] ?? r.metric['node'] ?? inst;
+    if (inst) instanceToNode.set(inst, nodename);
+  }
+
+  // Build chip → power map
+  const chipToPower = new Map<string, number>();
+  for (const r of energyRateResults) {
+    const chip = r.metric['chip'];
+    if (chip) chipToPower.set(chip, parseFloat(r.value[1]));
+  }
+
+  // Build chip → max power map
+  const chipToMaxPower = new Map<string, number>();
+  for (const r of powerMaxResults) {
+    const chip = r.metric['chip'];
+    if (chip) chipToMaxPower.set(chip, parseFloat(r.value[1]));
+  }
+
+  // Assemble per-chip metrics from the chip identification results
+  const chips: GpuChipMetrics[] = chipResults.map(r => {
+    const chip = r.metric['chip'] ?? '';
+    const instance = r.metric['instance'] ?? '';
+    const nodeName = instanceToNode.get(instance) ?? instance;
+    const powerWatts = chipToPower.has(chip) ? chipToPower.get(chip)! : null;
+    const powerMaxWatts = chipToMaxPower.has(chip) ? chipToMaxPower.get(chip)! : null;
+
+    return { nodeName, chip, instance, powerWatts, powerMaxWatts };
+  });
+
+  return {
+    chips,
+    fetchedAt: new Date().toISOString(),
+  };
 }
 
 // ---------------------------------------------------------------------------
 // Formatting helpers
 // ---------------------------------------------------------------------------
 
-export function formatBytes(bytes: number): string {
-  if (bytes >= 1e9) return `${(bytes / 1e9).toFixed(1)} GB`;
-  if (bytes >= 1e6) return `${(bytes / 1e6).toFixed(1)} MB`;
-  if (bytes >= 1e3) return `${(bytes / 1e3).toFixed(1)} KB`;
-  return `${bytes} B`;
+export function formatWatts(w: number): string {
+  return `${w.toFixed(1)} W`;
 }
 
-export function formatFreq(mhz: number): string {
-  return `${Math.round(mhz)} MHz`;
+export function formatPercent(used: number, max: number): string {
+  if (max <= 0) return '—';
+  return `${Math.round((used / max) * 100)}%`;
 }

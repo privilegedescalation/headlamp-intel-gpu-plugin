@@ -46,7 +46,7 @@ links:
 
 changes:
   - kind: added
-    description: "Metrics page: real-time engine utilization, boost frequency, VRAM usage, and energy from Intel GPU device plugin Prometheus endpoint (port 9090)"
+    description: "Metrics page: real-time GPU power draw (W) and TDP via node-exporter i915 hwmon metrics in kube-prometheus-stack"
   - kind: changed
     description: "Sidebar label changed to intel-gpu"
   - kind: removed
@@ -70,6 +70,6 @@ changes:
 
 annotations:
   headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.2.0/headlamp-intel-gpu-plugin-0.2.0.tar.gz"
-  headlamp/plugin/archive-checksum: "sha256:404be582bd13c167f61785028eb6eb91dd621106cbe76038f2c071a576a1a442"
+  headlamp/plugin/archive-checksum: "sha256:cbcd20916d72e91ccc36143c74680fbeb2f045e1cbe6d1cc0d844b198e2a1ea5"
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"

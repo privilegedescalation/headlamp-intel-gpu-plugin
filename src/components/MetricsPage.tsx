@@ -1,9 +1,9 @@
 /**
- * MetricsPage — real-time Intel GPU metrics from the device plugin pods.
+ * MetricsPage — Intel GPU power metrics from Prometheus (node-exporter hwmon).
  *
- * Fetches Prometheus metrics from each Intel GPU device plugin pod (port 9090)
- * and displays per-card engine utilization, GPU frequency, memory usage,
- * and cumulative energy. Requires `enableMonitoring: true` in GpuDevicePlugin.
+ * The Intel i915/Xe GPU driver exposes hwmon sensors which node-exporter scrapes.
+ * This page queries kube-prometheus-stack for real-time GPU power draw
+ * (derived from node_hwmon_energy_joule_total rate) and TDP per GPU node.
  */
 
 import {
@@ -15,141 +15,82 @@ import {
 } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useIntelGpuContext } from '../api/IntelGpuDataContext';
-import {
-  fetchGpuPluginMetrics,
-  formatBytes,
-  formatFreq,
-  GpuNodeMetrics,
-} from '../api/metrics';
-import { IntelGpuPod } from '../api/k8s';
+import { fetchGpuMetrics, formatPercent, formatWatts, GpuChipMetrics, GpuMetrics } from '../api/metrics';
 
 // ---------------------------------------------------------------------------
-// Utilization bar
+// Power bar
 // ---------------------------------------------------------------------------
 
-function UtilizationBar({ pct }: { pct: number }) {
-  const color = pct >= 90 ? '#d32f2f' : pct >= 70 ? '#f57c00' : '#0071c5';
+function PowerBar({ watts, maxWatts }: { watts: number; maxWatts: number | null }) {
+  const pct = maxWatts && maxWatts > 0 ? Math.min(100, Math.round((watts / maxWatts) * 100)) : null;
+  const color = pct === null ? '#0071c5' : pct >= 90 ? '#d32f2f' : pct >= 70 ? '#f57c00' : '#0071c5';
+
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-      <div
-        style={{
-          width: '100px',
-          height: '8px',
-          backgroundColor: '#e0e0e0',
-          borderRadius: '4px',
-          overflow: 'hidden',
-          flexShrink: 0,
-        }}
-      >
+      {pct !== null && (
         <div
           style={{
-            width: `${pct}%`,
-            height: '100%',
-            backgroundColor: color,
+            width: '100px',
+            height: '8px',
+            backgroundColor: '#e0e0e0',
             borderRadius: '4px',
-            transition: 'width 0.3s ease',
+            overflow: 'hidden',
+            flexShrink: 0,
           }}
-        />
-      </div>
-      <span style={{ fontSize: '12px', fontVariantNumeric: 'tabular-nums' }}>{pct}%</span>
+        >
+          <div
+            style={{
+              width: `${pct}%`,
+              height: '100%',
+              backgroundColor: color,
+              borderRadius: '4px',
+              transition: 'width 0.4s ease',
+            }}
+          />
+        </div>
+      )}
+      <span style={{ fontSize: '13px', fontVariantNumeric: 'tabular-nums' }}>
+        {formatWatts(watts)}
+        {maxWatts !== null && maxWatts > 0 && (
+          <span style={{ color: '#888', marginLeft: '4px' }}>
+            / {formatWatts(maxWatts)} ({formatPercent(watts, maxWatts)})
+          </span>
+        )}
+      </span>
     </div>
   );
 }
 
 // ---------------------------------------------------------------------------
-// Per-node metrics card
+// Per-chip card
 // ---------------------------------------------------------------------------
 
-function NodeMetricsCard({ metrics }: { metrics: GpuNodeMetrics }) {
-  const { nodeName, podName, engineUtilization, boostFreqMhz, memoryLocalBytes, memorySystemBytes, energyMicrojoules } = metrics;
+function GpuChipCard({ chip }: { chip: GpuChipMetrics }) {
+  const rows: Array<{ name: string; value: React.ReactNode }> = [
+    { name: 'Node', value: chip.nodeName },
+    { name: 'GPU (PCI)', value: chip.chip },
+  ];
 
-  // Group engines by card
-  const byCard = new Map<string, typeof engineUtilization>();
-  for (const e of engineUtilization) {
-    if (!byCard.has(e.card)) byCard.set(e.card, []);
-    byCard.get(e.card)!.push(e);
+  if (chip.powerWatts !== null) {
+    rows.push({
+      name: 'Current Power',
+      value: <PowerBar watts={chip.powerWatts} maxWatts={chip.powerMaxWatts} />,
+    });
+  } else {
+    rows.push({
+      name: 'Current Power',
+      value: <StatusLabel status="warning">No data (needs ≥5m of scrape history)</StatusLabel>,
+    });
   }
 
-  const freqByCard = new Map(boostFreqMhz.map(f => [f.card, f.value]));
-  const memLocalByCard = new Map(memoryLocalBytes.map(m => [m.card, m.value]));
-  const memSysByCard = new Map(memorySystemBytes.map(m => [m.card, m.value]));
-  const energyByCard = new Map(energyMicrojoules.map(e => [e.card, e.value]));
-
-  const cards = Array.from(
-    new Set([
-      ...byCard.keys(),
-      ...freqByCard.keys(),
-      ...memLocalByCard.keys(),
-    ])
-  ).sort();
-
-  if (cards.length === 0) {
-    return (
-      <SectionBox title={`${nodeName} — No Metric Data`}>
-        <NameValueTable
-          rows={[
-            {
-              name: 'Pod',
-              value: podName,
-            },
-            {
-              name: 'Note',
-              value: 'No GPU metrics found. Ensure enableMonitoring: true is set in GpuDevicePlugin.',
-            },
-          ]}
-        />
-      </SectionBox>
-    );
+  if (chip.powerMaxWatts !== null && chip.powerMaxWatts > 0) {
+    rows.push({ name: 'TDP', value: formatWatts(chip.powerMaxWatts) });
   }
 
   return (
-    <>
-      {cards.map(card => {
-        const engines = byCard.get(card) ?? [];
-        const freq = freqByCard.get(card);
-        const memLocal = memLocalByCard.get(card);
-        const memSys = memSysByCard.get(card);
-        const energy = energyByCard.get(card);
-
-        const rows: Array<{ name: string; value: React.ReactNode }> = [
-          { name: 'Node', value: nodeName },
-          { name: 'Plugin Pod', value: podName },
-          { name: 'GPU Card', value: card },
-        ];
-
-        if (freq !== undefined) {
-          rows.push({ name: 'Boost Frequency', value: formatFreq(freq) });
-        }
-
-        if (memLocal !== undefined) {
-          rows.push({ name: 'VRAM (local)', value: formatBytes(memLocal) });
-        }
-        if (memSys !== undefined && memSys > 0) {
-          rows.push({ name: 'System Memory', value: formatBytes(memSys) });
-        }
-
-        if (energy !== undefined) {
-          rows.push({
-            name: 'Energy (cumulative)',
-            value: `${(energy / 1e6).toFixed(2)} J`,
-          });
-        }
-
-        // Engine utilization rows
-        for (const e of engines) {
-          rows.push({
-            name: `Engine: ${e.engine}`,
-            value: <UtilizationBar pct={e.pct} />,
-          });
-        }
-
-        return (
-          <SectionBox key={`${nodeName}-${card}`} title={`${nodeName} — ${card}`}>
-            <NameValueTable rows={rows} />
-          </SectionBox>
-        );
-      })}
-    </>
+    <SectionBox title={`${chip.nodeName} — ${chip.chip}`}>
+      <NameValueTable rows={rows} />
+    </SectionBox>
   );
 }
 
@@ -158,38 +99,33 @@ function NodeMetricsCard({ metrics }: { metrics: GpuNodeMetrics }) {
 // ---------------------------------------------------------------------------
 
 export default function MetricsPage() {
-  const { pluginPods, pluginInstalled, loading: ctxLoading } = useIntelGpuContext();
+  const { gpuNodes, loading: ctxLoading } = useIntelGpuContext();
 
-  const [metricsMap, setMetricsMap] = useState<Map<string, GpuNodeMetrics | 'error'>>(new Map());
+  const [metrics, setMetrics] = useState<GpuMetrics | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetching, setFetching] = useState(false);
 
-  const fetchAll = useCallback(async (pods: IntelGpuPod[]) => {
-    if (pods.length === 0) return;
+  const doFetch = useCallback(async () => {
     setFetching(true);
-
-    const results = await Promise.all(
-      pods.map(async pod => {
-        const name = pod.metadata.name;
-        const namespace = pod.metadata.namespace ?? 'kube-system';
-        const nodeName = pod.spec?.nodeName ?? name;
-        const result = await fetchGpuPluginMetrics(name, namespace, nodeName);
-        return { name, result };
-      })
-    );
-
-    const map = new Map<string, GpuNodeMetrics | 'error'>();
-    for (const { name, result } of results) {
-      map.set(name, result ?? 'error');
+    setFetchError(null);
+    try {
+      const result = await fetchGpuMetrics();
+      setMetrics(result);
+      if (!result) {
+        setFetchError('Could not reach Prometheus. Ensure kube-prometheus-stack is installed in the monitoring namespace.');
+      }
+    } catch (e: unknown) {
+      setFetchError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setFetching(false);
     }
-    setMetricsMap(map);
-    setFetching(false);
   }, []);
 
   useEffect(() => {
-    if (!ctxLoading && pluginPods.length > 0) {
-      void fetchAll(pluginPods);
+    if (!ctxLoading) {
+      void doFetch();
     }
-  }, [ctxLoading, pluginPods, fetchAll]);
+  }, [ctxLoading, doFetch]);
 
   if (ctxLoading) {
     return <Loader title="Loading Intel GPU data..." />;
@@ -200,8 +136,8 @@ export default function MetricsPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <SectionHeader title="Intel GPU — Metrics" />
         <button
-          onClick={() => void fetchAll(pluginPods)}
-          disabled={fetching || pluginPods.length === 0}
+          onClick={() => void doFetch()}
+          disabled={fetching}
           aria-label="Refresh metrics"
           style={{
             padding: '6px 16px',
@@ -218,94 +154,91 @@ export default function MetricsPage() {
         </button>
       </div>
 
-      {!pluginInstalled && (
-        <SectionBox title="Intel GPU Plugin Not Detected">
-          <NameValueTable
-            rows={[
-              {
-                name: 'Status',
-                value: (
-                  <StatusLabel status="warning">No Intel GPU device plugin pods found</StatusLabel>
-                ),
-              },
-              {
-                name: 'Note',
-                value: 'Install the Intel GPU device plugin and set enableMonitoring: true to expose Prometheus metrics.',
-              },
-            ]}
-          />
-        </SectionBox>
-      )}
+      {fetching && !metrics && <Loader title="Querying Prometheus for GPU metrics..." />}
 
-      {pluginInstalled && pluginPods.length === 0 && (
-        <SectionBox title="No Plugin Pods Found">
-          <NameValueTable
-            rows={[
-              {
-                name: 'Status',
-                value: (
-                  <StatusLabel status="warning">Plugin detected via CRD but no pods found</StatusLabel>
-                ),
-              },
-            ]}
-          />
-        </SectionBox>
-      )}
-
-      {pluginPods.length > 0 && metricsMap.size === 0 && fetching && (
-        <Loader title="Fetching GPU metrics..." />
-      )}
-
-      {pluginPods.length > 0 && metricsMap.size === 0 && !fetching && (
+      {fetchError && (
         <SectionBox title="Metrics Unavailable">
+          <NameValueTable
+            rows={[
+              {
+                name: 'Error',
+                value: <StatusLabel status="error">{fetchError}</StatusLabel>,
+              },
+              {
+                name: 'Data Source',
+                value: 'node_hwmon_energy_joule_total (chip_name="i915") via kube-prometheus-stack',
+              },
+              {
+                name: 'Requirements',
+                value: 'kube-prometheus-stack installed in monitoring namespace with node-exporter enabled',
+              },
+            ]}
+          />
+        </SectionBox>
+      )}
+
+      {metrics && metrics.chips.length === 0 && (
+        <SectionBox title="No i915 GPU Metrics Found">
           <NameValueTable
             rows={[
               {
                 name: 'Status',
                 value: (
                   <StatusLabel status="warning">
-                    Could not fetch metrics from any plugin pod
+                    Prometheus is reachable but no i915 hwmon chips found
                   </StatusLabel>
                 ),
               },
               {
-                name: 'Requirements',
-                value: 'Set enableMonitoring: true in GpuDevicePlugin spec and ensure port 9090 is accessible via kube-apiserver proxy.',
+                name: 'Note',
+                value: 'The i915 driver exposes hwmon sensors on discrete Intel GPU nodes. ' +
+                  'Ensure node-exporter is running on GPU nodes with hwmon collector enabled.',
               },
               {
-                name: 'Plugin Pods Found',
-                value: pluginPods.map(p => p.metadata.name).join(', '),
+                name: 'GPU Nodes',
+                value: gpuNodes.length > 0
+                  ? gpuNodes.map(n => n.metadata.name).join(', ')
+                  : 'None detected',
               },
             ]}
           />
         </SectionBox>
       )}
 
-      {Array.from(metricsMap.entries()).map(([podName, metrics]) => {
-        if (metrics === 'error') {
-          return (
-            <SectionBox key={podName} title={`${podName} — Metrics Unavailable`}>
-              <NameValueTable
-                rows={[
-                  {
-                    name: 'Status',
-                    value: (
-                      <StatusLabel status="error">
-                        Failed to fetch metrics from pod
-                      </StatusLabel>
-                    ),
-                  },
-                  {
-                    name: 'Hint',
-                    value: 'Ensure enableMonitoring: true is set in the GpuDevicePlugin CR and the pod is running.',
-                  },
-                ]}
-              />
-            </SectionBox>
-          );
-        }
-        return <NodeMetricsCard key={podName} metrics={metrics} />;
-      })}
+      {metrics && metrics.chips.length > 0 && (
+        <>
+          <SectionBox title="GPU Power Summary">
+            <NameValueTable
+              rows={[
+                {
+                  name: 'GPUs Monitored',
+                  value: String(metrics.chips.length),
+                },
+                {
+                  name: 'Total Power',
+                  value: (() => {
+                    const total = metrics.chips.reduce((s, c) => s + (c.powerWatts ?? 0), 0);
+                    const maxTotal = metrics.chips.reduce((s, c) => s + (c.powerMaxWatts ?? 0), 0);
+                    return <PowerBar watts={total} maxWatts={maxTotal > 0 ? maxTotal : null} />;
+                  })(),
+                },
+                {
+                  name: 'Last Fetched',
+                  value: new Date(metrics.fetchedAt).toLocaleTimeString(),
+                },
+                {
+                  name: 'Data Source',
+                  value: 'node-exporter hwmon · i915 driver · rate(node_hwmon_energy_joule_total[5m])',
+                },
+              ]}
+            />
+          </SectionBox>
+
+          {metrics.chips.map(chip => (
+            <GpuChipCard key={`${chip.instance}-${chip.chip}`} chip={chip} />
+          ))}
+        </>
+      )}
     </>
   );
 }
