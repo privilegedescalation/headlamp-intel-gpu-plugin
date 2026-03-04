@@ -17,11 +17,10 @@ import { useIntelGpuContext } from '../api/IntelGpuDataContext';
 import {
   formatAge,
   formatGpuResourceName,
-  IntelGpuPod,
-  INTEL_GPU_RESOURCE_PREFIX,
-  isPodReady,
   getPodGpuRequests,
   getPodRestarts,
+  INTEL_GPU_RESOURCE_PREFIX,
+  IntelGpuPod,
 } from '../api/k8s';
 
 // ---------------------------------------------------------------------------
@@ -30,11 +29,16 @@ import {
 
 function phaseToStatus(phase: string | undefined): 'success' | 'warning' | 'error' {
   switch (phase) {
-    case 'Running': return 'success';
-    case 'Succeeded': return 'success';
-    case 'Pending': return 'warning';
-    case 'Failed': return 'error';
-    default: return 'warning';
+    case 'Running':
+      return 'success';
+    case 'Succeeded':
+      return 'success';
+    case 'Pending':
+      return 'warning';
+    case 'Failed':
+      return 'error';
+    default:
+      return 'warning';
   }
 }
 
@@ -98,13 +102,17 @@ export default function PodsPage() {
   const running = gpuPods.filter(p => p.status?.phase === 'Running');
   const pending = gpuPods.filter(p => p.status?.phase === 'Pending');
   const failed = gpuPods.filter(p => p.status?.phase === 'Failed');
-  const other = gpuPods.filter(
-    p => !['Running', 'Pending', 'Failed'].includes(p.status?.phase ?? '')
-  );
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <SectionHeader title="Intel GPU — Pods" />
         <button
           onClick={refresh}
@@ -161,13 +169,28 @@ export default function PodsPage() {
             rows={[
               { name: 'Total GPU Pods', value: String(gpuPods.length) },
               ...(running.length > 0
-                ? [{ name: 'Running', value: <StatusLabel status="success">{running.length}</StatusLabel> }]
+                ? [
+                    {
+                      name: 'Running',
+                      value: <StatusLabel status="success">{running.length}</StatusLabel>,
+                    },
+                  ]
                 : []),
               ...(pending.length > 0
-                ? [{ name: 'Pending', value: <StatusLabel status="warning">{pending.length}</StatusLabel> }]
+                ? [
+                    {
+                      name: 'Pending',
+                      value: <StatusLabel status="warning">{pending.length}</StatusLabel>,
+                    },
+                  ]
                 : []),
               ...(failed.length > 0
-                ? [{ name: 'Failed', value: <StatusLabel status="error">{failed.length}</StatusLabel> }]
+                ? [
+                    {
+                      name: 'Failed',
+                      value: <StatusLabel status="error">{failed.length}</StatusLabel>,
+                    },
+                  ]
                 : []),
             ]}
           />
@@ -179,12 +202,12 @@ export default function PodsPage() {
         <SectionBox title="All GPU Pods">
           <SimpleTable
             columns={[
-              { label: 'Name', getter: (p) => p.metadata.name },
-              { label: 'Namespace', getter: (p) => p.metadata.namespace ?? '—' },
-              { label: 'Node', getter: (p) => p.spec?.nodeName ?? '—' },
+              { label: 'Name', getter: p => p.metadata.name },
+              { label: 'Namespace', getter: p => p.metadata.namespace ?? '—' },
+              { label: 'Node', getter: p => p.spec?.nodeName ?? '—' },
               {
                 label: 'Phase',
-                getter: (p) => (
+                getter: p => (
                   <StatusLabel status={phaseToStatus(p.status?.phase)}>
                     {p.status?.phase ?? 'Unknown'}
                   </StatusLabel>
@@ -192,11 +215,11 @@ export default function PodsPage() {
               },
               {
                 label: 'GPU Resources',
-                getter: (p) => <GpuContainerList pod={p} />,
+                getter: p => <GpuContainerList pod={p} />,
               },
               {
                 label: 'Restarts',
-                getter: (p) => {
+                getter: p => {
                   const restarts = getPodRestarts(p);
                   return restarts > 0 ? (
                     <StatusLabel status="warning">{restarts}</StatusLabel>
@@ -205,7 +228,7 @@ export default function PodsPage() {
                   );
                 },
               },
-              { label: 'Age', getter: (p) => formatAge(p.metadata.creationTimestamp) },
+              { label: 'Age', getter: p => formatAge(p.metadata.creationTimestamp) },
             ]}
             data={gpuPods}
           />
@@ -217,25 +240,27 @@ export default function PodsPage() {
         <SectionBox title="Attention: Pending GPU Pods">
           <SimpleTable
             columns={[
-              { label: 'Name', getter: (p) => p.metadata.name },
-              { label: 'Namespace', getter: (p) => p.metadata.namespace ?? '—' },
+              { label: 'Name', getter: p => p.metadata.name },
+              { label: 'Namespace', getter: p => p.metadata.namespace ?? '—' },
               {
                 label: 'GPU Resources',
-                getter: (p) => {
+                getter: p => {
                   const reqs = getPodGpuRequests(p);
-                  return Object.entries(reqs)
-                    .map(([k, v]) => `${formatGpuResourceName(k)}: ${v}`)
-                    .join(', ') || '—';
+                  return (
+                    Object.entries(reqs)
+                      .map(([k, v]) => `${formatGpuResourceName(k)}: ${v}`)
+                      .join(', ') || '—'
+                  );
                 },
               },
               {
                 label: 'Waiting Reason',
-                getter: (p) => {
+                getter: p => {
                   const reason = p.status?.containerStatuses?.[0]?.state?.waiting?.reason;
                   return reason ?? '—';
                 },
               },
-              { label: 'Age', getter: (p) => formatAge(p.metadata.creationTimestamp) },
+              { label: 'Age', getter: p => formatAge(p.metadata.creationTimestamp) },
             ]}
             data={pending}
           />

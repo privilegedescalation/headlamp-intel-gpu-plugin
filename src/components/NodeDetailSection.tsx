@@ -19,10 +19,8 @@ import {
   getGpuResources,
   getNodeGpuType,
   INTEL_GPU_RESOURCE,
-  INTEL_GPU_RESOURCE_PREFIX,
   INTEL_GPU_XE_RESOURCE,
   isIntelGpuNode,
-  isNodeReady,
 } from '../api/k8s';
 
 interface NodeDetailSectionProps {
@@ -40,9 +38,7 @@ export default function NodeDetailSection({ resource }: NodeDetailSectionProps) 
 
   // Extract the raw Kubernetes JSON — Headlamp KubeObject wraps it in jsonData
   const rawNode =
-    resource.jsonData && typeof resource.jsonData === 'object'
-      ? resource.jsonData
-      : resource;
+    resource.jsonData && typeof resource.jsonData === 'object' ? resource.jsonData : resource;
 
   // Only render for Node resources that have Intel GPU
   if (!isIntelGpuNode(rawNode)) return null;
@@ -63,9 +59,7 @@ export default function NodeDetailSection({ resource }: NodeDetailSectionProps) 
   const gpuType = getNodeGpuType(node as any);
 
   // Find GPU pods scheduled on this node
-  const podsOnNode = loading
-    ? []
-    : gpuPods.filter(p => p.spec?.nodeName === nodeName);
+  const podsOnNode = loading ? [] : gpuPods.filter(p => p.spec?.nodeName === nodeName);
 
   if (Object.keys(capacity).length === 0 && Object.keys(allocatable).length === 0) {
     return null;
@@ -81,18 +75,18 @@ export default function NodeDetailSection({ resource }: NodeDetailSectionProps) 
     }
   }
   for (const pod of podsOnNode.filter(p => p.status?.phase === 'Running')) {
-    const reqs = pod.spec?.containers?.flatMap(c =>
-      Object.entries(c.resources?.requests ?? {}).filter(([k]) =>
-        k === INTEL_GPU_RESOURCE || k === INTEL_GPU_XE_RESOURCE
-      )
-    ) ?? [];
+    const reqs =
+      pod.spec?.containers?.flatMap(c =>
+        Object.entries(c.resources?.requests ?? {}).filter(
+          ([k]) => k === INTEL_GPU_RESOURCE || k === INTEL_GPU_XE_RESOURCE
+        )
+      ) ?? [];
     for (const [, val] of reqs) {
       gpuInUse += parseInt(val, 10) || 0;
     }
   }
 
-  const utilizationPct =
-    gpuAllocatable > 0 ? Math.round((gpuInUse / gpuAllocatable) * 100) : 0;
+  const utilizationPct = gpuAllocatable > 0 ? Math.round((gpuInUse / gpuAllocatable) * 100) : 0;
   const utilizationStatus: 'success' | 'warning' | 'error' =
     utilizationPct >= 90 ? 'error' : utilizationPct >= 70 ? 'warning' : 'success';
 

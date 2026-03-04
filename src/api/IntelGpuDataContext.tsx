@@ -116,9 +116,11 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
           // Intel device plugins operator deployment
           `/api/v1/pods?labelSelector=${encodeURIComponent('app=intel-gpu-plugin')}`,
           // Alternative: by component label
-          `/api/v1/pods?labelSelector=${encodeURIComponent('app.kubernetes.io/name=intel-gpu-plugin')}`,
+          `/api/v1/pods?labelSelector=${encodeURIComponent(
+            'app.kubernetes.io/name=intel-gpu-plugin'
+          )}`,
           // Intel device plugins from inteldeviceplugins-system namespace
-          `/api/v1/namespaces/inteldeviceplugins-system/pods`,
+          '/api/v1/namespaces/inteldeviceplugins-system/pods',
         ];
 
         const foundPluginPods: IntelGpuPod[] = [];
@@ -155,7 +157,9 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
     }
 
     void fetchAsync();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [refreshKey]);
 
   // ---------------------------------------------------------------------------

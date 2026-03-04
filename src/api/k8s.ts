@@ -28,8 +28,7 @@ export const INTEL_DISCRETE_GPU_NODE_ROLE = 'node-role.kubernetes.io/gpu';
 export const INTEL_INTEGRATED_GPU_NODE_ROLE = 'node-role.kubernetes.io/igpu';
 
 /** Label selector for Intel GPU device plugin DaemonSet pods */
-export const INTEL_GPU_PLUGIN_LABEL_SELECTOR =
-  'app=intel-gpu-plugin';
+export const INTEL_GPU_PLUGIN_LABEL_SELECTOR = 'app=intel-gpu-plugin';
 
 // ---------------------------------------------------------------------------
 // Generic Kubernetes object base shapes
@@ -194,9 +193,12 @@ export function getNodeGpuType(node: IntelGpuNode): GpuType {
 
 export function formatGpuType(type: GpuType): string {
   switch (type) {
-    case 'discrete': return 'Discrete';
-    case 'integrated': return 'Integrated';
-    default: return 'Unknown';
+    case 'discrete':
+      return 'Discrete';
+    case 'integrated':
+      return 'Integrated';
+    default:
+      return 'Unknown';
   }
 }
 
@@ -272,9 +274,11 @@ export function isIntelGpuPluginPod(pod: unknown): pod is IntelGpuPod {
   const meta = obj['metadata'] as Record<string, unknown> | undefined;
   const labels = meta?.['labels'] as Record<string, string> | undefined;
   if (!labels) return false;
-  return labels['app'] === 'intel-gpu-plugin' ||
-    (labels['app.kubernetes.io/name'] === 'intel-gpu-plugin') ||
-    (labels['component'] === 'intel-gpu-plugin');
+  return (
+    labels['app'] === 'intel-gpu-plugin' ||
+    labels['app.kubernetes.io/name'] === 'intel-gpu-plugin' ||
+    labels['component'] === 'intel-gpu-plugin'
+  );
 }
 
 export function filterIntelGpuPluginPods(items: unknown[]): IntelGpuPod[] {
@@ -284,10 +288,7 @@ export function filterIntelGpuPluginPods(items: unknown[]): IntelGpuPod[] {
 /** Get total GPU requests from a pod's containers */
 export function getPodGpuRequests(pod: IntelGpuPod): Record<string, string> {
   const totals: Record<string, number> = {};
-  const allContainers = [
-    ...(pod.spec?.containers ?? []),
-    ...(pod.spec?.initContainers ?? []),
-  ];
+  const allContainers = [...(pod.spec?.containers ?? []), ...(pod.spec?.initContainers ?? [])];
   for (const c of allContainers) {
     const requests = c.resources?.requests ?? {};
     for (const [key, value] of Object.entries(requests)) {
@@ -300,15 +301,11 @@ export function getPodGpuRequests(pod: IntelGpuPod): Record<string, string> {
 }
 
 export function isPodReady(pod: IntelGpuPod): boolean {
-  return (
-    pod.status?.conditions?.some(c => c.type === 'Ready' && c.status === 'True') ?? false
-  );
+  return pod.status?.conditions?.some(c => c.type === 'Ready' && c.status === 'True') ?? false;
 }
 
 export function getPodRestarts(pod: IntelGpuPod): number {
-  return (
-    pod.status?.containerStatuses?.reduce((sum, c) => sum + c.restartCount, 0) ?? 0
-  );
+  return pod.status?.containerStatuses?.reduce((sum, c) => sum + c.restartCount, 0) ?? 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -330,9 +327,7 @@ export function isKubeList(value: unknown): value is KubeList<unknown> {
 // ---------------------------------------------------------------------------
 
 export function isNodeReady(node: IntelGpuNode): boolean {
-  return (
-    node.status?.conditions?.some(c => c.type === 'Ready' && c.status === 'True') ?? false
-  );
+  return node.status?.conditions?.some(c => c.type === 'Ready' && c.status === 'True') ?? false;
 }
 
 // ---------------------------------------------------------------------------
@@ -359,11 +354,11 @@ export function formatAge(timestamp: string | undefined): string {
 export function formatGpuResourceName(resourceKey: string): string {
   const name = resourceKey.replace(INTEL_GPU_RESOURCE_PREFIX, '');
   const map: Record<string, string> = {
-    'i915': 'GPU (i915)',
-    'xe': 'GPU (Xe)',
-    'millicores': 'GPU Millicores',
+    i915: 'GPU (i915)',
+    xe: 'GPU (Xe)',
+    millicores: 'GPU Millicores',
     'memory.max': 'GPU Memory (max)',
-    'tiles': 'GPU Tiles',
+    tiles: 'GPU Tiles',
   };
   return map[name] ?? name;
 }
@@ -372,9 +367,7 @@ export function formatGpuResourceName(resourceKey: string): string {
 // Status helpers
 // ---------------------------------------------------------------------------
 
-export function pluginStatusToStatus(
-  plugin: GpuDevicePlugin
-): 'success' | 'warning' | 'error' {
+export function pluginStatusToStatus(plugin: GpuDevicePlugin): 'success' | 'warning' | 'error' {
   const desired = plugin.status?.desiredNumberScheduled ?? 0;
   const ready = plugin.status?.numberReady ?? 0;
   const unavailable = plugin.status?.numberUnavailable ?? 0;

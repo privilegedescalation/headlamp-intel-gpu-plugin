@@ -23,7 +23,6 @@ import {
   getNodeGpuCount,
   getNodeGpuType,
   INTEL_GPU_RESOURCE,
-  INTEL_GPU_RESOURCE_PREFIX,
   INTEL_GPU_XE_RESOURCE,
   IntelGpuNode,
   isNodeReady,
@@ -33,13 +32,7 @@ import {
 // GPU allocation bar component
 // ---------------------------------------------------------------------------
 
-function GpuAllocationBar({
-  used,
-  allocatable,
-}: {
-  used: number;
-  allocatable: number;
-}) {
+function GpuAllocationBar({ used, allocatable }: { used: number; allocatable: number }) {
   if (allocatable === 0) return <span>—</span>;
   const pct = Math.min(100, Math.round((used / allocatable) * 100));
   const color = pct >= 90 ? '#d32f2f' : pct >= 70 ? '#f57c00' : '#0071c5';
@@ -105,21 +98,18 @@ function NodeDetailCard({
             name: 'GPU Type',
             value: formatGpuType(gpuType),
           },
-          ...(gpuCount > 0
-            ? [{ name: 'GPU Devices (i915/xe)', value: String(gpuCount) }]
-            : []),
+          ...(gpuCount > 0 ? [{ name: 'GPU Devices (i915/xe)', value: String(gpuCount) }] : []),
           ...Object.entries(capacityResources).map(([key, cap]) => {
-            const alloc = parseInt(allocatableResources[key] ?? '0', 10);
             const total = parseInt(cap, 10);
             return {
               name: `${formatGpuResourceName(key)} (capacity)`,
               value: String(total),
             };
           }),
-          ...Object.entries(allocatableResources).map(([key, alloc]) => {
+          ...Object.entries(allocatableResources).map(([key, value]) => {
             return {
               name: `${formatGpuResourceName(key)} (allocatable)`,
-              value: alloc ?? '0',
+              value: value ?? '0',
             };
           }),
           {
@@ -200,7 +190,14 @@ export default function NodesPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <SectionHeader title="Intel GPU — Nodes" />
         <button
           onClick={refresh}
@@ -256,28 +253,28 @@ export default function NodesPage() {
         <SectionBox title="GPU Node Summary">
           <SimpleTable
             columns={[
-              { label: 'Node', getter: (d) => d.node.metadata.name },
+              { label: 'Node', getter: d => d.node.metadata.name },
               {
                 label: 'Ready',
-                getter: (d) => (
+                getter: d => (
                   <StatusLabel status={d.ready ? 'success' : 'error'}>
                     {d.ready ? 'Ready' : 'Not Ready'}
                   </StatusLabel>
                 ),
               },
-              { label: 'GPU Type', getter: (d) => formatGpuType(d.gpuType) },
-              { label: 'GPU Devices', getter: (d) => String(d.gpuCount || '—') },
+              { label: 'GPU Type', getter: d => formatGpuType(d.gpuType) },
+              { label: 'GPU Devices', getter: d => String(d.gpuCount || '—') },
               {
                 label: 'Allocation',
-                getter: (d) => (
+                getter: d => (
                   <GpuAllocationBar
                     used={d.podsOnNode.length}
                     allocatable={d.totalAllocatable || d.gpuCount}
                   />
                 ),
               },
-              { label: 'GPU Pods', getter: (d) => String(d.podsOnNode.length) },
-              { label: 'Age', getter: (d) => formatAge(d.node.metadata.creationTimestamp) },
+              { label: 'GPU Pods', getter: d => String(d.podsOnNode.length) },
+              { label: 'Age', getter: d => formatAge(d.node.metadata.creationTimestamp) },
             ]}
             data={tableData}
           />

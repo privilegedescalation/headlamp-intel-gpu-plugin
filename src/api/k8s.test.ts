@@ -12,18 +12,18 @@ import {
   getNodeGpuCount,
   getNodeGpuType,
   getPodGpuRequests,
+  type GpuDevicePlugin,
   INTEL_GPU_NODE_LABEL,
   INTEL_GPU_RESOURCE,
   INTEL_GPU_XE_RESOURCE,
+  type IntelGpuNode,
+  type IntelGpuPod,
   isGpuRequestingPod,
   isIntelGpuNode,
   isKubeList,
   isNodeReady,
   pluginStatusText,
   pluginStatusToStatus,
-  type GpuDevicePlugin,
-  type IntelGpuNode,
-  type IntelGpuPod,
 } from './k8s';
 
 // ---------------------------------------------------------------------------
@@ -413,11 +413,7 @@ describe('formatGpuType', () => {
 // ---------------------------------------------------------------------------
 
 describe('pluginStatusToStatus', () => {
-  function makePlugin(
-    desired: number,
-    ready: number,
-    unavailable = 0
-  ): GpuDevicePlugin {
+  function makePlugin(desired: number, ready: number, unavailable = 0): GpuDevicePlugin {
     return {
       apiVersion: 'deviceplugin.intel.com/v1',
       kind: 'GpuDevicePlugin',

@@ -25,9 +25,7 @@ interface PodDetailSectionProps {
 export default function PodDetailSection({ resource }: PodDetailSectionProps) {
   // Extract raw Kubernetes JSON
   const rawPod =
-    resource.jsonData && typeof resource.jsonData === 'object'
-      ? resource.jsonData
-      : resource;
+    resource.jsonData && typeof resource.jsonData === 'object' ? resource.jsonData : resource;
 
   // Only render for pods that request Intel GPU resources
   if (!isGpuRequestingPod(rawPod)) return null;
@@ -98,9 +96,7 @@ export default function PodDetailSection({ resource }: PodDetailSectionProps) {
         rows={[
           {
             name: 'Phase',
-            value: (
-              <StatusLabel status={phaseStatus}>{phase ?? 'Unknown'}</StatusLabel>
-            ),
+            value: <StatusLabel status={phaseStatus}>{phase ?? 'Unknown'}</StatusLabel>,
           },
           {
             name: 'Scheduled Node',

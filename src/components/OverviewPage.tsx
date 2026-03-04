@@ -18,7 +18,6 @@ import React from 'react';
 import { useIntelGpuContext } from '../api/IntelGpuDataContext';
 import {
   formatAge,
-  formatGpuType,
   getNodeGpuCount,
   getNodeGpuType,
   getPodGpuRequests,
@@ -42,7 +41,8 @@ function gpuTypeChartData(
 ): Array<{ name: string; value: number; fill: string }> {
   const data = [];
   if (discreteCount > 0) data.push({ name: 'Discrete', value: discreteCount, fill: '#0071c5' });
-  if (integratedCount > 0) data.push({ name: 'Integrated', value: integratedCount, fill: '#60a4dc' });
+  if (integratedCount > 0)
+    data.push({ name: 'Integrated', value: integratedCount, fill: '#60a4dc' });
   if (unknownCount > 0) data.push({ name: 'Unknown', value: unknownCount, fill: '#9e9e9e' });
   return data;
 }
@@ -113,9 +113,7 @@ export default function OverviewPage() {
   }
 
   const gpuUtilizationPct =
-    totalCapacityGpus > 0
-      ? Math.round((totalAllocatedGpus / totalCapacityGpus) * 100)
-      : 0;
+    totalCapacityGpus > 0 ? Math.round((totalAllocatedGpus / totalCapacityGpus) * 100) : 0;
 
   const chartData = gpuTypeChartData(discreteCount, integratedCount, unknownCount);
   const totalGpuNodes = gpuNodes.length;
@@ -133,7 +131,14 @@ export default function OverviewPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <SectionHeader title="Intel GPU — Overview" />
         <button
           onClick={refresh}
@@ -218,26 +223,25 @@ export default function OverviewPage() {
         <SectionBox title="Device Plugin Status">
           <SimpleTable
             columns={[
-              { label: 'Name', getter: (p) => p.metadata.name },
+              { label: 'Name', getter: p => p.metadata.name },
               {
                 label: 'Status',
-                getter: (p) => (
-                  <StatusLabel status={pluginStatusToStatus(p)}>
-                    {pluginStatusText(p)}
-                  </StatusLabel>
+                getter: p => (
+                  <StatusLabel status={pluginStatusToStatus(p)}>{pluginStatusText(p)}</StatusLabel>
                 ),
               },
               {
                 label: 'Monitoring',
-                getter: (p) => p.spec.enableMonitoring ? (
-                  <StatusLabel status="success">Enabled</StatusLabel>
-                ) : (
-                  <StatusLabel status="warning">Disabled</StatusLabel>
-                ),
+                getter: p =>
+                  p.spec.enableMonitoring ? (
+                    <StatusLabel status="success">Enabled</StatusLabel>
+                  ) : (
+                    <StatusLabel status="warning">Disabled</StatusLabel>
+                  ),
               },
-              { label: 'Shared/Node', getter: (p) => String(p.spec.sharedDevNum ?? 1) },
-              { label: 'Policy', getter: (p) => p.spec.preferredAllocationPolicy ?? '—' },
-              { label: 'Age', getter: (p) => formatAge(p.metadata.creationTimestamp) },
+              { label: 'Shared/Node', getter: p => String(p.spec.sharedDevNum ?? 1) },
+              { label: 'Policy', getter: p => p.spec.preferredAllocationPolicy ?? '—' },
+              { label: 'Age', getter: p => formatAge(p.metadata.creationTimestamp) },
             ]}
             data={devicePlugins}
           />
@@ -249,18 +253,18 @@ export default function OverviewPage() {
         <SectionBox title="Plugin Daemon Pods">
           <SimpleTable
             columns={[
-              { label: 'Name', getter: (p) => p.metadata.name },
-              { label: 'Namespace', getter: (p) => p.metadata.namespace ?? '—' },
-              { label: 'Node', getter: (p) => p.spec?.nodeName ?? '—' },
+              { label: 'Name', getter: p => p.metadata.name },
+              { label: 'Namespace', getter: p => p.metadata.namespace ?? '—' },
+              { label: 'Node', getter: p => p.spec?.nodeName ?? '—' },
               {
                 label: 'Status',
-                getter: (p) => (
+                getter: p => (
                   <StatusLabel status={isPodReady(p) ? 'success' : 'warning'}>
                     {isPodReady(p) ? 'Ready' : p.status?.phase ?? 'Unknown'}
                   </StatusLabel>
                 ),
               },
-              { label: 'Age', getter: (p) => formatAge(p.metadata.creationTimestamp) },
+              { label: 'Age', getter: p => formatAge(p.metadata.creationTimestamp) },
             ]}
             data={pluginPods}
           />
@@ -271,7 +275,13 @@ export default function OverviewPage() {
       <SectionBox title="GPU Nodes">
         {totalGpuNodes > 0 && chartData.length > 0 && (
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ marginBottom: '8px', fontSize: '14px', color: 'var(--mui-palette-text-secondary)' }}>
+            <div
+              style={{
+                marginBottom: '8px',
+                fontSize: '14px',
+                color: 'var(--mui-palette-text-secondary)',
+              }}
+            >
               GPU Type Distribution
             </div>
             <PercentageBar data={chartData} total={totalGpuNodes} />
@@ -288,9 +298,15 @@ export default function OverviewPage() {
               ),
             },
             { name: 'Ready Nodes', value: String(readyNodeCount) },
-            ...(discreteCount > 0 ? [{ name: 'Discrete GPU Nodes', value: String(discreteCount) }] : []),
-            ...(integratedCount > 0 ? [{ name: 'Integrated GPU Nodes', value: String(integratedCount) }] : []),
-            ...(totalGpuCount > 0 ? [{ name: 'Total GPU Devices', value: String(totalGpuCount) }] : []),
+            ...(discreteCount > 0
+              ? [{ name: 'Discrete GPU Nodes', value: String(discreteCount) }]
+              : []),
+            ...(integratedCount > 0
+              ? [{ name: 'Integrated GPU Nodes', value: String(integratedCount) }]
+              : []),
+            ...(totalGpuCount > 0
+              ? [{ name: 'Total GPU Devices', value: String(totalGpuCount) }]
+              : []),
           ]}
         />
       </SectionBox>
@@ -299,13 +315,23 @@ export default function OverviewPage() {
       {totalCapacityGpus > 0 && (
         <SectionBox title="GPU Allocation">
           <div style={{ marginBottom: '16px' }}>
-            <div style={{ marginBottom: '8px', fontSize: '14px', color: 'var(--mui-palette-text-secondary)' }}>
+            <div
+              style={{
+                marginBottom: '8px',
+                fontSize: '14px',
+                color: 'var(--mui-palette-text-secondary)',
+              }}
+            >
               GPU Utilization ({gpuUtilizationPct}%)
             </div>
             <PercentageBar
               data={[
                 { name: 'In Use', value: totalAllocatedGpus, fill: '#0071c5' },
-                { name: 'Available', value: totalAllocatableGpus - totalAllocatedGpus, fill: '#e0e0e0' },
+                {
+                  name: 'Available',
+                  value: totalAllocatableGpus - totalAllocatedGpus,
+                  fill: '#e0e0e0',
+                },
               ]}
               total={totalAllocatableGpus}
             />
@@ -336,13 +362,28 @@ export default function OverviewPage() {
           rows={[
             { name: 'Total GPU Pods', value: String(gpuPods.length) },
             ...(podPhaseCounts.Running > 0
-              ? [{ name: 'Running', value: <StatusLabel status="success">{podPhaseCounts.Running}</StatusLabel> }]
+              ? [
+                  {
+                    name: 'Running',
+                    value: <StatusLabel status="success">{podPhaseCounts.Running}</StatusLabel>,
+                  },
+                ]
               : []),
             ...(podPhaseCounts.Pending > 0
-              ? [{ name: 'Pending', value: <StatusLabel status="warning">{podPhaseCounts.Pending}</StatusLabel> }]
+              ? [
+                  {
+                    name: 'Pending',
+                    value: <StatusLabel status="warning">{podPhaseCounts.Pending}</StatusLabel>,
+                  },
+                ]
               : []),
             ...(podPhaseCounts.Failed > 0
-              ? [{ name: 'Failed', value: <StatusLabel status="error">{podPhaseCounts.Failed}</StatusLabel> }]
+              ? [
+                  {
+                    name: 'Failed',
+                    value: <StatusLabel status="error">{podPhaseCounts.Failed}</StatusLabel>,
+                  },
+                ]
               : []),
           ]}
         />
@@ -353,12 +394,12 @@ export default function OverviewPage() {
         <SectionBox title="Active GPU Pods">
           <SimpleTable
             columns={[
-              { label: 'Name', getter: (p) => p.metadata.name },
-              { label: 'Namespace', getter: (p) => p.metadata.namespace ?? '—' },
-              { label: 'Node', getter: (p) => p.spec?.nodeName ?? '—' },
+              { label: 'Name', getter: p => p.metadata.name },
+              { label: 'Namespace', getter: p => p.metadata.namespace ?? '—' },
+              { label: 'Node', getter: p => p.spec?.nodeName ?? '—' },
               {
                 label: 'GPU Request',
-                getter: (p) => {
+                getter: p => {
                   const reqs = getPodGpuRequests(p);
                   const parts: string[] = [];
                   for (const [key, val] of Object.entries(reqs)) {
@@ -368,7 +409,7 @@ export default function OverviewPage() {
                   return parts.join(', ') || '—';
                 },
               },
-              { label: 'Age', getter: (p) => formatAge(p.metadata.creationTimestamp) },
+              { label: 'Age', getter: p => formatAge(p.metadata.creationTimestamp) },
             ]}
             data={gpuPods.filter(p => p.status?.phase === 'Running').slice(0, 10)}
           />

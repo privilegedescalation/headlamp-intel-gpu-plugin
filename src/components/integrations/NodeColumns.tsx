@@ -11,12 +11,7 @@
 
 import { StatusLabel } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import React from 'react';
-import {
-  formatGpuType,
-  getNodeGpuCount,
-  getNodeGpuType,
-  isIntelGpuNode,
-} from '../../api/k8s';
+import { formatGpuType, getNodeGpuCount, getNodeGpuType, isIntelGpuNode } from '../../api/k8s';
 
 /** Build GPU columns to append to the native Nodes table. */
 export function buildNodeGpuColumns() {
@@ -33,11 +28,7 @@ export function buildNodeGpuColumns() {
         if (!isIntelGpuNode(raw)) return '—';
         const node = raw as Parameters<typeof getNodeGpuType>[0];
         const type = getNodeGpuType(node);
-        return (
-          <StatusLabel status="success">
-            {formatGpuType(type)}
-          </StatusLabel>
-        );
+        return <StatusLabel status="success">{formatGpuType(type)}</StatusLabel>;
       },
     },
     {

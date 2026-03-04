@@ -35,7 +35,13 @@ import {
 } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useIntelGpuContext } from '../api/IntelGpuDataContext';
-import { fetchGpuMetrics, formatPercent, formatWatts, GpuChipMetrics, GpuMetrics } from '../api/metrics';
+import {
+  fetchGpuMetrics,
+  formatPercent,
+  formatWatts,
+  GpuChipMetrics,
+  GpuMetrics,
+} from '../api/metrics';
 
 // ---------------------------------------------------------------------------
 // Power bar
@@ -43,7 +49,8 @@ import { fetchGpuMetrics, formatPercent, formatWatts, GpuChipMetrics, GpuMetrics
 
 function PowerBar({ watts, maxWatts }: { watts: number; maxWatts: number | null }) {
   const pct = maxWatts && maxWatts > 0 ? Math.min(100, Math.round((watts / maxWatts) * 100)) : null;
-  const color = pct === null ? '#0071c5' : pct >= 90 ? '#d32f2f' : pct >= 70 ? '#f57c00' : '#0071c5';
+  const color =
+    pct === null ? '#0071c5' : pct >= 90 ? '#d32f2f' : pct >= 70 ? '#f57c00' : '#0071c5';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -91,9 +98,12 @@ function GpuChipCard({ chip }: { chip: GpuChipMetrics }) {
     { name: 'GPU (PCI)', value: chip.chip },
     {
       name: 'Current Power',
-      value: chip.powerWatts !== null
-        ? <PowerBar watts={chip.powerWatts} maxWatts={chip.powerMaxWatts} />
-        : <StatusLabel status="warning">No data — needs ≥5m of scrape history</StatusLabel>,
+      value:
+        chip.powerWatts !== null ? (
+          <PowerBar watts={chip.powerWatts} maxWatts={chip.powerMaxWatts} />
+        ) : (
+          <StatusLabel status="warning">No data — needs ≥5m of scrape history</StatusLabel>
+        ),
     },
   ];
 
@@ -123,8 +133,9 @@ function MetricRequirements() {
               <>
                 <StatusLabel status="success">Available — discrete GPU nodes</StatusLabel>
                 <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
-                  Source: <code>node_hwmon_energy_joule_total</code> via node-exporter hwmon collector (enabled by default).
-                  Requires the i915 kernel driver on the node. iGPU nodes do not expose hwmon sensors.
+                  Source: <code>node_hwmon_energy_joule_total</code> via node-exporter hwmon
+                  collector (enabled by default). Requires the i915 kernel driver on the node. iGPU
+                  nodes do not expose hwmon sensors.
                 </div>
               </>
             ),
@@ -136,8 +147,9 @@ function MetricRequirements() {
                 <StatusLabel status="error">Not available</StatusLabel>
                 <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
                   i915 exposes <code>gt_*_freq_mhz</code> via DRM sysfs but node-exporter&apos;s{' '}
-                  <code>--collector.drm</code> flag is AMD-only and does not read these files.
-                  A custom exporter or textfile-collector sidecar writing these values would be required.
+                  <code>--collector.drm</code> flag is AMD-only and does not read these files. A
+                  custom exporter or textfile-collector sidecar writing these values would be
+                  required.
                 </div>
               </>
             ),
@@ -148,8 +160,8 @@ function MetricRequirements() {
               <>
                 <StatusLabel status="error">Not available</StatusLabel>
                 <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
-                  No standard Prometheus collector exposes i915 engine busy percentage.
-                  Would require intel-gpu-top, XPU Manager, or a custom DRM-based exporter.
+                  No standard Prometheus collector exposes i915 engine busy percentage. Would
+                  require intel-gpu-top, XPU Manager, or a custom DRM-based exporter.
                 </div>
               </>
             ),
@@ -160,8 +172,8 @@ function MetricRequirements() {
               <>
                 <StatusLabel status="error">No metrics available</StatusLabel>
                 <div style={{ marginTop: '4px', fontSize: '12px', color: '#666' }}>
-                  The integrated GPU driver does not expose hwmon sensors. No Prometheus metrics
-                  are available for iGPU nodes regardless of configuration.
+                  The integrated GPU driver does not expose hwmon sensors. No Prometheus metrics are
+                  available for iGPU nodes regardless of configuration.
                 </div>
               </>
             ),
@@ -190,7 +202,9 @@ export default function MetricsPage() {
       const result = await fetchGpuMetrics();
       setMetrics(result);
       if (!result) {
-        setFetchError('Could not reach Prometheus. Ensure kube-prometheus-stack is installed in the monitoring namespace.');
+        setFetchError(
+          'Could not reach Prometheus. Ensure kube-prometheus-stack is installed in the monitoring namespace.'
+        );
       }
     } catch (e: unknown) {
       setFetchError(e instanceof Error ? e.message : String(e));
@@ -211,7 +225,14 @@ export default function MetricsPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <SectionHeader title="Intel GPU — Metrics" />
         <button
           onClick={() => void doFetch()}
@@ -246,7 +267,8 @@ export default function MetricsPage() {
               },
               {
                 name: 'Checked services',
-                value: 'kube-prometheus-stack-prometheus:9090, prometheus-operated:9090, prometheus:9090 (monitoring namespace)',
+                value:
+                  'kube-prometheus-stack-prometheus:9090, prometheus-operated:9090, prometheus:9090 (monitoring namespace)',
               },
             ]}
           />
@@ -261,17 +283,22 @@ export default function MetricsPage() {
                 name: 'Status',
                 value: (
                   <StatusLabel status="warning">
-                    Prometheus reachable — no node_hwmon_chip_names&#123;chip_name=&quot;i915&quot;&#125; found
+                    Prometheus reachable — no
+                    node_hwmon_chip_names&#123;chip_name=&quot;i915&quot;&#125; found
                   </StatusLabel>
                 ),
               },
               {
                 name: 'GPU Nodes',
-                value: gpuNodes.length > 0 ? gpuNodes.map(n => n.metadata.name).join(', ') : 'None detected',
+                value:
+                  gpuNodes.length > 0
+                    ? gpuNodes.map(n => n.metadata.name).join(', ')
+                    : 'None detected',
               },
               {
                 name: 'Likely cause',
-                value: 'node-exporter is not running on the GPU nodes, or the hwmon collector is disabled.',
+                value:
+                  'node-exporter is not running on the GPU nodes, or the hwmon collector is disabled.',
               },
             ]}
           />
@@ -301,7 +328,8 @@ export default function MetricsPage() {
                 },
                 {
                   name: 'Query',
-                  value: 'rate(node_hwmon_energy_joule_total[5m]) joined with node_hwmon_chip_names{chip_name="i915"}',
+                  value:
+                    'rate(node_hwmon_energy_joule_total[5m]) joined with node_hwmon_chip_names{chip_name="i915"}',
                 },
               ]}
             />

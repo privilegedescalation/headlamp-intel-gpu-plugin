@@ -64,14 +64,11 @@ const PROMETHEUS_SERVICES = [
   { namespace: 'monitoring', service: 'prometheus', port: '9090' },
 ];
 
-async function queryPrometheus(
-  query: string,
-  prometheusPath: string
-): Promise<PrometheusResult[]> {
+async function queryPrometheus(query: string, prometheusPath: string): Promise<PrometheusResult[]> {
   const encoded = encodeURIComponent(query);
   const path = `${prometheusPath}/api/v1/query?query=${encoded}`;
 
-  const raw = await ApiProxy.request(path, { method: 'GET' }) as PrometheusResponse;
+  const raw = (await ApiProxy.request(path, { method: 'GET' })) as PrometheusResponse;
 
   if (raw?.status !== 'success') return [];
   return raw.data?.result ?? [];
@@ -81,7 +78,9 @@ async function findPrometheusPath(): Promise<string | null> {
   for (const { namespace, service, port } of PROMETHEUS_SERVICES) {
     const basePath = `/api/v1/namespaces/${namespace}/services/${service}:${port}/proxy`;
     try {
-      const raw = await ApiProxy.request(`${basePath}/api/v1/query?query=1`, { method: 'GET' }) as PrometheusResponse;
+      const raw = (await ApiProxy.request(`${basePath}/api/v1/query?query=1`, {
+        method: 'GET',
+      })) as PrometheusResponse;
       if (raw?.status === 'success') return basePath;
     } catch {
       // try next

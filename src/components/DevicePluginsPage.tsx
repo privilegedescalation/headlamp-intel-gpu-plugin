@@ -18,8 +18,7 @@ import { useIntelGpuContext } from '../api/IntelGpuDataContext';
 import { formatAge, isPodReady, pluginStatusText, pluginStatusToStatus } from '../api/k8s';
 
 export default function DevicePluginsPage() {
-  const { devicePlugins, pluginPods, crdAvailable, loading, error, refresh } =
-    useIntelGpuContext();
+  const { devicePlugins, pluginPods, crdAvailable, loading, error, refresh } = useIntelGpuContext();
 
   if (loading) {
     return <Loader title="Loading device plugin data..." />;
@@ -27,7 +26,14 @@ export default function DevicePluginsPage() {
 
   return (
     <>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '20px',
+        }}
+      >
         <SectionHeader title="Intel GPU — Device Plugins" />
         <button
           onClick={refresh}
@@ -102,7 +108,10 @@ export default function DevicePluginsPage() {
       )}
 
       {devicePlugins.map(plugin => (
-        <SectionBox key={plugin.metadata.uid ?? plugin.metadata.name} title={`GpuDevicePlugin: ${plugin.metadata.name}`}>
+        <SectionBox
+          key={plugin.metadata.uid ?? plugin.metadata.name}
+          title={`GpuDevicePlugin: ${plugin.metadata.name}`}
+        >
           <NameValueTable
             rows={[
               {
@@ -146,14 +155,14 @@ export default function DevicePluginsPage() {
                 value: String(plugin.status?.numberReady ?? '—'),
               },
               ...(plugin.status?.numberUnavailable
-                ? [{
-                    name: 'Unavailable Nodes',
-                    value: (
-                      <StatusLabel status="error">
-                        {plugin.status.numberUnavailable}
-                      </StatusLabel>
-                    ),
-                  }]
+                ? [
+                    {
+                      name: 'Unavailable Nodes',
+                      value: (
+                        <StatusLabel status="error">{plugin.status.numberUnavailable}</StatusLabel>
+                      ),
+                    },
+                  ]
                 : []),
               {
                 name: 'Node Selector',
@@ -177,12 +186,12 @@ export default function DevicePluginsPage() {
         <SectionBox title="Plugin Daemon Pods">
           <SimpleTable
             columns={[
-              { label: 'Name', getter: (p) => p.metadata.name },
-              { label: 'Namespace', getter: (p) => p.metadata.namespace ?? '—' },
-              { label: 'Node', getter: (p) => p.spec?.nodeName ?? '—' },
+              { label: 'Name', getter: p => p.metadata.name },
+              { label: 'Namespace', getter: p => p.metadata.namespace ?? '—' },
+              { label: 'Node', getter: p => p.spec?.nodeName ?? '—' },
               {
                 label: 'Ready',
-                getter: (p) => (
+                getter: p => (
                   <StatusLabel status={isPodReady(p) ? 'success' : 'warning'}>
                     {isPodReady(p) ? 'Ready' : p.status?.phase ?? 'Unknown'}
                   </StatusLabel>
@@ -190,10 +199,9 @@ export default function DevicePluginsPage() {
               },
               {
                 label: 'Restarts',
-                getter: (p) => {
-                  const restarts = p.status?.containerStatuses?.reduce(
-                    (sum, c) => sum + c.restartCount, 0
-                  ) ?? 0;
+                getter: p => {
+                  const restarts =
+                    p.status?.containerStatuses?.reduce((sum, c) => sum + c.restartCount, 0) ?? 0;
                   return restarts > 0 ? (
                     <StatusLabel status="warning">{restarts}</StatusLabel>
                   ) : (
@@ -201,7 +209,7 @@ export default function DevicePluginsPage() {
                   );
                 },
               },
-              { label: 'Age', getter: (p) => formatAge(p.metadata.creationTimestamp) },
+              { label: 'Age', getter: p => formatAge(p.metadata.creationTimestamp) },
             ]}
             data={pluginPods}
           />

@@ -180,4 +180,3 @@ registerResourceTableColumnsProcessor(({ id, columns }) => {
   }
   return columns;
 });
-
