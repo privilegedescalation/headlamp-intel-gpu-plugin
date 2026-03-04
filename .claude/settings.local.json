@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(done)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "github",
+    "kubernetes",
+    "flux",
+    "playwright"
+  ]
+}

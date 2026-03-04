@@ -1,12 +1,16 @@
 {
-  "name": "headlamp-intel-gpu-plugin",
+  "name": "intel-gpu",
   "version": "0.3.0",
   "description": "Headlamp plugin for Intel GPU device plugin visibility and monitoring",
   "repository": {
     "type": "git",
-    "url": "https://github.com/cpfarhood/headlamp-intel-gpu-plugin.git"
+    "url": "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin.git"
   },
-  "author": "cpfarhood",
+  "bugs": {
+    "url": "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/issues"
+  },
+  "homepage": "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin#readme",
+  "author": "privilegedescalation",
   "license": "Apache-2.0",
   "scripts": {
     "start": "headlamp-plugin start",

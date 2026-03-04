@@ -1,5 +1,5 @@
 version: "0.3.0"
-name: headlamp-intel-gpu-plugin
+name: intel-gpu
 displayName: Intel GPU
 description: >-
   Headlamp plugin for Intel GPU device plugin visibility and monitoring.
@@ -71,7 +71,7 @@ changes:
     description: "App bar health badge: hidden when no Intel GPU plugin detected"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.3.0/headlamp-intel-gpu-plugin-0.3.0.tar.gz"
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.3.0/intel-gpu-0.3.0.tar.gz"
   headlamp/plugin/archive-checksum: "sha256:fdc53099ee3123680f24fe4a319b753ca3d030aac31abd4e3f383221085c9c2d"
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
