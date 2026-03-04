@@ -1,4 +1,4 @@
-version: "0.3.0"
+version: "0.4.0"
 name: intel-gpu
 displayName: Intel GPU
 description: >-
@@ -71,7 +71,7 @@ changes:
     description: "App bar health badge: hidden when no Intel GPU plugin detected"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.3.0/intel-gpu-0.3.0.tar.gz"
-  headlamp/plugin/archive-checksum: "sha256:fdc53099ee3123680f24fe4a319b753ca3d030aac31abd4e3f383221085c9c2d"
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.0/intel-gpu-0.4.0.tar.gz"
+  headlamp/plugin/archive-checksum: sha256:f529794d7995b35b954fa32c10874fa8367f6f5cd8040600e47a3013373219df
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
