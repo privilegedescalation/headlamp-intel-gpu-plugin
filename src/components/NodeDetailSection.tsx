@@ -52,11 +52,11 @@ export default function NodeDetailSection({ resource }: NodeDetailSectionProps) 
     metadata: { name: string; labels?: Record<string, string> };
   };
 
-  const nodeName = (node as { metadata: { name: string } }).metadata.name;
-  const capacity = getGpuResources((node as any).status?.capacity);
-  const allocatable = getGpuResources((node as any).status?.allocatable);
+  const nodeName = node.metadata.name;
+  const capacity = getGpuResources(node.status?.capacity);
+  const allocatable = getGpuResources(node.status?.allocatable);
 
-  const gpuType = getNodeGpuType(node as any);
+  const gpuType = getNodeGpuType(node);
 
   // Find GPU pods scheduled on this node
   const podsOnNode = loading ? [] : gpuPods.filter(p => p.spec?.nodeName === nodeName);

@@ -1,4 +1,4 @@
-version: "0.4.0"
+version: "0.4.1"
 name: intel-gpu
 displayName: Intel GPU
 description: >-
@@ -8,14 +8,14 @@ description: >-
   sections into native Node and Pod detail pages. Supports discrete (i915),
   Xe, and integrated GPU nodes with graceful degradation when the device
   plugin operator is not installed. Includes a Metrics page showing real-time
-  engine utilization, GPU frequency, VRAM usage, and energy from the device
-  plugin's Prometheus endpoint.
+  GPU power draw and TDP from node-exporter i915 hwmon metrics (discrete GPU
+  nodes only).
 createdAt: "2026-02-18T00:00:00Z"
 license: Apache-2.0
 category: monitoring-logging
 
 homeURL: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
-appVersion: "0.3.0"
+appVersion: "0.4.0"
 
 keywords:
   - headlamp
@@ -45,33 +45,23 @@ links:
     url: https://intel.github.io/intel-device-plugins-for-kubernetes/
 
 changes:
-  - kind: added
-    description: "Metrics page: document which metrics require what infrastructure (power via hwmon works out of the box; frequency and utilization need custom exporters)"
-  - kind: added
-    description: "Metrics page: real-time GPU power draw (W) and TDP via node-exporter i915 hwmon metrics in kube-prometheus-stack"
+  - kind: fixed
+    description: "Remove unsafe `as any` casts in NodeDetailSection"
+  - kind: fixed
+    description: "Fix MetricsPage fetch cancellation safety (prevent setState on unmounted component)"
+  - kind: fixed
+    description: "Fix typo gpuPluinPods → gpuPluginPods in data context"
   - kind: changed
-    description: "Sidebar label changed to intel-gpu"
+    description: "Move extractJsonData utility to module scope to avoid recreation on every render"
   - kind: removed
-    description: "Removed app bar health badge"
-  - kind: added
-    description: "Overview dashboard: plugin health, GPU node summary, allocation bar, active GPU pods"
-  - kind: added
-    description: "Device Plugins page: GpuDevicePlugin CRD instances with spec/status and daemon pods"
-  - kind: added
-    description: "GPU Nodes page: per-node GPU type, device count, allocation, workload pods"
-  - kind: added
-    description: "GPU Pods page: all pods requesting Intel GPU resources with per-container detail"
-  - kind: added
-    description: "Node detail injection: Intel GPU section on native Node detail pages (capacity, allocatable, utilization, active pods)"
-  - kind: added
-    description: "Pod detail injection: GPU resource requests/limits per container on native Pod detail pages"
-  - kind: added
-    description: "Nodes table: GPU Type and GPU Devices columns injected into native Nodes table"
-  - kind: added
-    description: "App bar health badge: hidden when no Intel GPU plugin detected"
+    description: "Remove dead AppBarGpuBadge component"
+  - kind: fixed
+    description: "Fix appVersion mismatch and inaccurate metrics description in Artifact Hub metadata"
+  - kind: fixed
+    description: "Resolve ESLint/Prettier indent conflict by disabling ESLint indent rule (Prettier is formatting authority)"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.0/intel-gpu-0.4.0.tar.gz"
-  headlamp/plugin/archive-checksum: sha256:f529794d7995b35b954fa32c10874fa8367f6f5cd8040600e47a3013373219df
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.1/intel-gpu-0.4.1.tar.gz"
+  headlamp/plugin/archive-checksum: ""
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"

@@ -35,7 +35,7 @@ src/
 ├── index.tsx                         # Plugin entry: registerRoute, registerSidebarEntry, registerDetailsViewSection, registerResourceTableColumnsProcessor
 ├── api/
 │   ├── k8s.ts                        # Types + helpers (GpuDevicePlugin CRD, Nodes, Pods, type guards, formatters)
-│   ├── k8s.test.ts                   # Tests for k8s helpers (70+ test cases)
+│   ├── k8s.test.ts                   # Tests for k8s helpers (48 test cases)
 │   ├── metrics.ts                    # Prometheus GPU power metrics (node-exporter i915 hwmon)
 │   └── IntelGpuDataContext.tsx       # Shared React context provider with data fetching
 └── components/
@@ -44,7 +44,7 @@ src/
     ├── NodesPage.tsx                  # Per-node GPU type, device count, allocation, workload pods
     ├── PodsPage.tsx                   # All pods requesting Intel GPU resources with per-container detail
     ├── MetricsPage.tsx                # Real-time GPU power metrics from Prometheus
-    ├── NodeDetailSection.tsx          # Injected into native Node detail page (capacity, utilization, pods)
+    ├── NodeDetailSection.tsx           # Injected into native Node detail page (capacity, utilization, pods)
     ├── PodDetailSection.tsx           # Injected into native Pod detail page (GPU requests per container)
     └── integrations/
         └── NodeColumns.tsx            # GPU Type and GPU Devices columns for native Nodes table

@@ -66,6 +66,18 @@ export function useIntelGpuContext(): IntelGpuContextValue {
 }
 
 // ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+/** Extract raw Kubernetes JSON from Headlamp KubeObject wrappers. */
+const extractJsonData = (items: unknown[]): unknown[] =>
+  items.map(item =>
+    item && typeof item === 'object' && 'jsonData' in item
+      ? (item as { jsonData: unknown }).jsonData
+      : item
+  );
+
+// ---------------------------------------------------------------------------
 // Provider
 // ---------------------------------------------------------------------------
 
@@ -129,8 +141,8 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
           try {
             const list = await ApiProxy.request(url);
             if (!cancelled && isKubeList(list)) {
-              const gpuPluinPods = filterIntelGpuPluginPods(list.items);
-              foundPluginPods.push(...gpuPluinPods);
+              const gpuPluginPods = filterIntelGpuPluginPods(list.items);
+              foundPluginPods.push(...gpuPluginPods);
             }
           } catch {
             // Silently ignore — some selectors may not match
@@ -169,13 +181,6 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
   // Kubernetes JSON under `.jsonData`. Extract jsonData so our plain-object
   // type helpers work correctly.
   // ---------------------------------------------------------------------------
-
-  const extractJsonData = (items: unknown[]): unknown[] =>
-    items.map(item =>
-      item && typeof item === 'object' && 'jsonData' in item
-        ? (item as { jsonData: unknown }).jsonData
-        : item
-    );
 
   const gpuNodes = useMemo(() => {
     if (!allNodes) return [];

@@ -194,30 +194,41 @@ export default function MetricsPage() {
   const [metrics, setMetrics] = useState<GpuMetrics | null>(null);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [fetching, setFetching] = useState(false);
+  const [fetchSeq, setFetchSeq] = useState(0);
 
-  const doFetch = useCallback(async () => {
-    setFetching(true);
-    setFetchError(null);
-    try {
-      const result = await fetchGpuMetrics();
-      setMetrics(result);
-      if (!result) {
-        setFetchError(
-          'Could not reach Prometheus. Ensure kube-prometheus-stack is installed in the monitoring namespace.'
-        );
-      }
-    } catch (e: unknown) {
-      setFetchError(e instanceof Error ? e.message : String(e));
-    } finally {
-      setFetching(false);
-    }
+  const doFetch = useCallback(() => {
+    setFetchSeq(s => s + 1);
   }, []);
 
   useEffect(() => {
-    if (!ctxLoading) {
-      void doFetch();
-    }
-  }, [ctxLoading, doFetch]);
+    if (ctxLoading) return;
+
+    let cancelled = false;
+    setFetching(true);
+    setFetchError(null);
+
+    fetchGpuMetrics()
+      .then(result => {
+        if (cancelled) return;
+        setMetrics(result);
+        if (!result) {
+          setFetchError(
+            'Could not reach Prometheus. Ensure kube-prometheus-stack is installed in the monitoring namespace.'
+          );
+        }
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setFetchError(e instanceof Error ? e.message : String(e));
+      })
+      .finally(() => {
+        if (!cancelled) setFetching(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [ctxLoading, fetchSeq]);
 
   if (ctxLoading) {
     return <Loader title="Loading Intel GPU data..." />;
