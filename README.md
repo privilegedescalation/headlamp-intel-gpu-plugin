@@ -20,17 +20,17 @@ A [Headlamp](https://headlamp.dev/) plugin providing visibility into [Intel GPU 
 
 ### Plugin Manager (Headlamp UI)
 
-Search for `intel-gpu` in the Headlamp Plugin Manager.
+Search for `headlamp-intel-gpu` in the Headlamp Plugin Manager.
 
 ### Manual
 
 ```bash
 # Download the latest release tarball
-curl -LO https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/latest/download/intel-gpu-*.tar.gz
+curl -LO https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/latest/download/headlamp-intel-gpu-*.tar.gz
 
 # Extract to Headlamp plugins directory
 mkdir -p ~/.config/Headlamp/plugins
-tar -xzf intel-gpu-*.tar.gz -C ~/.config/Headlamp/plugins/
+tar -xzf headlamp-intel-gpu-*.tar.gz -C ~/.config/Headlamp/plugins/
 ```
 
 ### From Source
