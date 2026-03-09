@@ -62,6 +62,6 @@ changes:
 
 annotations:
   headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.1/headlamp-intel-gpu-0.4.1.tar.gz"
-  headlamp/plugin/archive-checksum: ""
+  headlamp/plugin/archive-checksum: "sha256:0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5"
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
