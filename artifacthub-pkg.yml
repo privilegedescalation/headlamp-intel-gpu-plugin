@@ -1,4 +1,4 @@
-version: "0.4.1"
+version: "0.4.2"
 name: headlamp-intel-gpu
 displayName: Intel GPU
 description: >-
@@ -15,7 +15,7 @@ license: Apache-2.0
 category: monitoring-logging
 
 homeURL: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
-appVersion: "0.4.0"
+appVersion: "0.35.0"
 
 keywords:
   - headlamp
@@ -61,7 +61,7 @@ changes:
     description: "Resolve ESLint/Prettier indent conflict by disabling ESLint indent rule (Prettier is formatting authority)"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.1/headlamp-intel-gpu-0.4.1.tar.gz"
-  headlamp/plugin/archive-checksum: "sha256:0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5"
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.2/headlamp-intel-gpu-0.4.2.tar.gz"
+  headlamp/plugin/archive-checksum: sha256:0713b099a79ed63ea30675fee96f2a70e37471507d4135b529df158a09960492
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
