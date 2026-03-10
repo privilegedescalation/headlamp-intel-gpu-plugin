@@ -1,5 +1,5 @@
 /**
- * headlamp-intel-gpu-plugin — entry point.
+ * intel-gpu-plugin — entry point.
  *
  * Registers sidebar entries, routes, detail view sections, and table column
  * processors for Intel GPU device plugin visibility in Headlamp.
@@ -34,49 +34,49 @@ import PodsPage from './components/PodsPage';
 
 registerSidebarEntry({
   parent: null,
-  name: 'headlamp-intel-gpu',
-  label: 'headlamp-intel-gpu',
-  url: '/headlamp-intel-gpu',
+  name: 'intel-gpu',
+  label: 'intel-gpu',
+  url: '/intel-gpu',
   icon: 'mdi:gpu',
 });
 
 registerSidebarEntry({
-  parent: 'headlamp-intel-gpu',
-  name: 'headlamp-intel-gpu-overview',
+  parent: 'intel-gpu',
+  name: 'intel-gpu-overview',
   label: 'Overview',
-  url: '/headlamp-intel-gpu',
+  url: '/intel-gpu',
   icon: 'mdi:view-dashboard',
 });
 
 registerSidebarEntry({
-  parent: 'headlamp-intel-gpu',
-  name: 'headlamp-intel-gpu-device-plugins',
+  parent: 'intel-gpu',
+  name: 'intel-gpu-device-plugins',
   label: 'Device Plugins',
-  url: '/headlamp-intel-gpu/device-plugins',
+  url: '/intel-gpu/device-plugins',
   icon: 'mdi:chip',
 });
 
 registerSidebarEntry({
-  parent: 'headlamp-intel-gpu',
-  name: 'headlamp-intel-gpu-nodes',
+  parent: 'intel-gpu',
+  name: 'intel-gpu-nodes',
   label: 'GPU Nodes',
-  url: '/headlamp-intel-gpu/nodes',
+  url: '/intel-gpu/nodes',
   icon: 'mdi:server',
 });
 
 registerSidebarEntry({
-  parent: 'headlamp-intel-gpu',
-  name: 'headlamp-intel-gpu-pods',
+  parent: 'intel-gpu',
+  name: 'intel-gpu-pods',
   label: 'GPU Pods',
-  url: '/headlamp-intel-gpu/pods',
+  url: '/intel-gpu/pods',
   icon: 'mdi:cube-outline',
 });
 
 registerSidebarEntry({
-  parent: 'headlamp-intel-gpu',
-  name: 'headlamp-intel-gpu-metrics',
+  parent: 'intel-gpu',
+  name: 'intel-gpu-metrics',
   label: 'Metrics',
-  url: '/headlamp-intel-gpu/metrics',
+  url: '/intel-gpu/metrics',
   icon: 'mdi:chart-line',
 });
 
@@ -85,9 +85,9 @@ registerSidebarEntry({
 // ---------------------------------------------------------------------------
 
 registerRoute({
-  path: '/headlamp-intel-gpu',
-  sidebar: 'headlamp-intel-gpu-overview',
-  name: 'headlamp-intel-gpu-overview',
+  path: '/intel-gpu',
+  sidebar: 'intel-gpu-overview',
+  name: 'intel-gpu-overview',
   exact: true,
   component: () => (
     <IntelGpuDataProvider>
@@ -97,9 +97,9 @@ registerRoute({
 });
 
 registerRoute({
-  path: '/headlamp-intel-gpu/device-plugins',
-  sidebar: 'headlamp-intel-gpu-device-plugins',
-  name: 'headlamp-intel-gpu-device-plugins',
+  path: '/intel-gpu/device-plugins',
+  sidebar: 'intel-gpu-device-plugins',
+  name: 'intel-gpu-device-plugins',
   exact: true,
   component: () => (
     <IntelGpuDataProvider>
@@ -109,9 +109,9 @@ registerRoute({
 });
 
 registerRoute({
-  path: '/headlamp-intel-gpu/nodes',
-  sidebar: 'headlamp-intel-gpu-nodes',
-  name: 'headlamp-intel-gpu-nodes',
+  path: '/intel-gpu/nodes',
+  sidebar: 'intel-gpu-nodes',
+  name: 'intel-gpu-nodes',
   exact: true,
   component: () => (
     <IntelGpuDataProvider>
@@ -121,9 +121,9 @@ registerRoute({
 });
 
 registerRoute({
-  path: '/headlamp-intel-gpu/pods',
-  sidebar: 'headlamp-intel-gpu-pods',
-  name: 'headlamp-intel-gpu-pods',
+  path: '/intel-gpu/pods',
+  sidebar: 'intel-gpu-pods',
+  name: 'intel-gpu-pods',
   exact: true,
   component: () => (
     <IntelGpuDataProvider>
@@ -133,9 +133,9 @@ registerRoute({
 });
 
 registerRoute({
-  path: '/headlamp-intel-gpu/metrics',
-  sidebar: 'headlamp-intel-gpu-metrics',
-  name: 'headlamp-intel-gpu-metrics',
+  path: '/intel-gpu/metrics',
+  sidebar: 'intel-gpu-metrics',
+  name: 'intel-gpu-metrics',
   exact: true,
   component: () => (
     <IntelGpuDataProvider>
