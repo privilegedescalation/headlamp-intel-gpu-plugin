@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Headlamp plugin for Intel GPU device plugin visibility and monitoring. Read-only — monitors GpuDevicePlugin CRDs, GPU-capable nodes, pods requesting Intel GPU resources, and real-time power metrics via Prometheus. No cluster write operations.
 
-- **Plugin name**: `headlamp-intel-gpu`
+- **Plugin name**: `intel-gpu`
 - **Target**: Headlamp >= v0.20.0
 - **Data sources**: GpuDevicePlugin CRDs (`deviceplugin.intel.com/v1`), Nodes, Pods (all namespaces), Prometheus (node-exporter i915 hwmon)
 - **Reference plugin**: `../headlamp-kube-vip-plugin`
