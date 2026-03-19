@@ -1,4 +1,4 @@
-version: "0.4.2"
+version: "0.4.3"
 name: headlamp-intel-gpu
 displayName: Intel GPU
 description: >-
@@ -61,7 +61,7 @@ changes:
     description: "Resolve ESLint/Prettier indent conflict by disabling ESLint indent rule (Prettier is formatting authority)"
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.2/headlamp-intel-gpu-0.4.2.tar.gz"
-  headlamp/plugin/archive-checksum: sha256:0713b099a79ed63ea30675fee96f2a70e37471507d4135b529df158a09960492
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.3/intel-gpu-0.4.3.tar.gz"
+  headlamp/plugin/archive-checksum: sha256:d9c78b3d678d3e6b92c81315bfed88bd22ec4f5cd63578467206727244db7dab
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
