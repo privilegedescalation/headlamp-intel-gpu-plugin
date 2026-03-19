@@ -1,6 +1,6 @@
 {
   "name": "intel-gpu",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Headlamp plugin for Intel GPU device plugin visibility and monitoring",
   "repository": {
     "type": "git",
