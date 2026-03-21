@@ -17,6 +17,36 @@ category: monitoring-logging
 homeURL: https://github.com/privilegedescalation/headlamp-intel-gpu-plugin
 appVersion: "0.35.0"
 
+install: |
+  ## Installation
+
+  ### Prerequisites
+
+  1. [Headlamp](https://headlamp.dev) v0.20.0 or later
+  2. [Intel Device Plugins for Kubernetes](https://intel.github.io/intel-device-plugins-for-kubernetes/) operator installed in your cluster (required for GPU node discovery and CRD visibility)
+
+  ### Install via Headlamp Plugin Catalog
+
+  1. Open Headlamp and navigate to **Settings → Plugin Catalog**
+  2. Search for **"Intel GPU"**
+  3. Click **Install** and restart Headlamp when prompted
+
+  The plugin is sourced directly from [ArtifactHub](https://artifacthub.io/packages/headlamp/headlamp/headlamp-intel-gpu).
+
+  ## Usage
+
+  After installation, the Intel GPU plugin adds:
+  - An **Overview** page showing cluster-level GPU counts, type distribution (discrete/integrated/Xe/unknown), and pod allocation summary
+  - A **Nodes** page with per-node GPU capacity, allocatable counts, and allocation bars
+  - A **Pods** page listing GPU-requesting pods grouped by phase (Running/Pending/Failed)
+  - A **Device Plugins** page showing GpuDevicePlugin CRD status
+  - A **Metrics** page with real-time power draw and TDP from i915 hwmon metrics (discrete GPU nodes only)
+  - Injected GPU sections on native **Node** and **Pod** detail pages
+
+  The plugin degrades gracefully when the Intel Device Plugins operator is not installed.
+
+  For more information, see the [README](https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/blob/main/README.md).
+
 keywords:
   - headlamp
   - kubernetes
