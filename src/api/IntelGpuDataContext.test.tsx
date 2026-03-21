@@ -57,8 +57,8 @@ describe('useIntelGpuContext', () => {
 
 describe('IntelGpuDataProvider', () => {
   it('renders children', async () => {
-    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null]);
-    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null]);
+    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null] as any);
     vi.mocked(ApiProxy.request).mockResolvedValue({ items: [] });
 
     render(
@@ -71,8 +71,8 @@ describe('IntelGpuDataProvider', () => {
   });
 
   it('exposes loading=true while nodes/pods are null', async () => {
-    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([null, null]);
-    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([null, null]);
+    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([null, null] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([null, null] as any);
     // Keep async request pending forever
     vi.mocked(ApiProxy.request).mockReturnValue(new Promise(() => {}));
 
@@ -83,10 +83,10 @@ describe('IntelGpuDataProvider', () => {
 
   it('exposes loaded state with GPU nodes once data arrives', async () => {
     vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([
-      [makeNodeWrapper(gpuNodeRaw)],
+      [makeNodeWrapper(gpuNodeRaw)] as any,
       null,
-    ]);
-    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null]);
+    ] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null] as any);
     vi.mocked(ApiProxy.request).mockResolvedValue({ items: [] });
 
     const { result } = renderHook(() => useIntelGpuContext(), { wrapper: Wrapper });
@@ -97,8 +97,8 @@ describe('IntelGpuDataProvider', () => {
   });
 
   it('sets crdAvailable=true and populates devicePlugins when ApiProxy returns plugin list', async () => {
-    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null]);
-    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null]);
+    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null] as any);
 
     // First call = CRD list, subsequent calls = plugin pod selectors (empty)
     vi.mocked(ApiProxy.request)
@@ -114,8 +114,8 @@ describe('IntelGpuDataProvider', () => {
   });
 
   it('sets crdAvailable=false and does not surface error when ApiProxy throws on CRD request', async () => {
-    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null]);
-    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null]);
+    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null] as any);
 
     // First call (CRD endpoint) throws, plugin pod selectors resolve empty
     vi.mocked(ApiProxy.request)
@@ -132,8 +132,8 @@ describe('IntelGpuDataProvider', () => {
   });
 
   it('increments refreshKey and re-runs the effect when refresh() is called', async () => {
-    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null]);
-    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null]);
+    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null] as any);
     vi.mocked(ApiProxy.request).mockResolvedValue({ items: [] });
 
     const { result } = renderHook(() => useIntelGpuContext(), { wrapper: Wrapper });
