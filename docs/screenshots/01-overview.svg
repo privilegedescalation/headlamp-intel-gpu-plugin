@@ -1,0 +1,123 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" font-family="Inter, Segoe UI, Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="750" fill="#0f1117"/>
+
+  <!-- Top nav bar -->
+  <rect width="1200" height="48" fill="#1a1d27"/>
+  <text x="16" y="30" font-size="18" font-weight="700" fill="#ffffff">⚡ Headlamp</text>
+  <text x="120" y="30" font-size="14" fill="#8b8fa8">Intel GPU</text>
+  <text x="200" y="30" font-size="14" fill="#8b8fa8">/</text>
+  <text x="214" y="30" font-size="14" fill="#a78bfa">Overview</text>
+
+  <!-- Sidebar -->
+  <rect x="0" y="48" width="200" height="702" fill="#13151f"/>
+  <rect x="0" y="90" width="200" height="36" fill="#a78bfa22"/>
+  <text x="16" y="113" font-size="13" fill="#a78bfa" font-weight="600">Overview</text>
+  <text x="16" y="153" font-size="13" fill="#8b8fa8">Device Plugins</text>
+  <text x="16" y="193" font-size="13" fill="#8b8fa8">GPU Nodes</text>
+  <text x="16" y="233" font-size="13" fill="#8b8fa8">GPU Pods</text>
+  <text x="16" y="273" font-size="13" fill="#8b8fa8">Metrics</text>
+
+  <!-- Page title -->
+  <text x="220" y="90" font-size="22" font-weight="700" fill="#ffffff">Intel GPU Overview</text>
+  <text x="220" y="112" font-size="13" fill="#8b8fa8">Cluster-wide GPU device plugin status and workload summary</text>
+
+  <!-- Summary cards row -->
+  <!-- Card 1: GPU Nodes -->
+  <rect x="220" y="130" width="200" height="100" rx="8" fill="#1e2130"/>
+  <rect x="220" y="130" width="200" height="4" rx="2" fill="#a78bfa"/>
+  <text x="240" y="165" font-size="12" fill="#8b8fa8">GPU Nodes</text>
+  <text x="240" y="200" font-size="36" font-weight="700" fill="#a78bfa">6</text>
+  <text x="290" y="200" font-size="13" fill="#8b8fa8">/ 12 total</text>
+
+  <!-- Card 2: Active GPU Pods -->
+  <rect x="436" y="130" width="200" height="100" rx="8" fill="#1e2130"/>
+  <rect x="436" y="130" width="200" height="4" rx="2" fill="#34d399"/>
+  <text x="456" y="165" font-size="12" fill="#8b8fa8">Active GPU Pods</text>
+  <text x="456" y="200" font-size="36" font-weight="700" fill="#34d399">14</text>
+  <text x="506" y="200" font-size="13" fill="#8b8fa8">running</text>
+
+  <!-- Card 3: Device Plugins -->
+  <rect x="652" y="130" width="200" height="100" rx="8" fill="#1e2130"/>
+  <rect x="652" y="130" width="200" height="4" rx="2" fill="#60a5fa"/>
+  <text x="672" y="165" font-size="12" fill="#8b8fa8">Device Plugins</text>
+  <text x="672" y="200" font-size="36" font-weight="700" fill="#60a5fa">2</text>
+  <text x="722" y="200" font-size="13" fill="#8b8fa8">healthy</text>
+
+  <!-- Card 4: GPU Allocation -->
+  <rect x="868" y="130" width="300" height="100" rx="8" fill="#1e2130"/>
+  <rect x="868" y="130" width="300" height="4" rx="2" fill="#fb923c"/>
+  <text x="888" y="165" font-size="12" fill="#8b8fa8">Cluster GPU Allocation</text>
+  <text x="888" y="195" font-size="28" font-weight="700" fill="#fb923c">58%</text>
+  <!-- Allocation bar -->
+  <rect x="888" y="208" width="260" height="8" rx="4" fill="#2d3148"/>
+  <rect x="888" y="208" width="151" height="8" rx="4" fill="#fb923c"/>
+
+  <!-- GPU Type Distribution -->
+  <rect x="220" y="248" width="440" height="220" rx="8" fill="#1e2130"/>
+  <text x="240" y="278" font-size="15" font-weight="600" fill="#ffffff">GPU Type Distribution</text>
+  <!-- Pie chart mockup -->
+  <circle cx="340" cy="370" r="70" fill="none" stroke="#2d3148" stroke-width="30"/>
+  <circle cx="340" cy="370" r="70" fill="none" stroke="#a78bfa" stroke-width="30" stroke-dasharray="176 264" stroke-dashoffset="0"/>
+  <circle cx="340" cy="370" r="70" fill="none" stroke="#60a5fa" stroke-width="30" stroke-dasharray="88 352" stroke-dashoffset="-176"/>
+  <!-- Legend -->
+  <rect x="430" y="340" width="12" height="12" rx="2" fill="#a78bfa"/>
+  <text x="448" y="352" font-size="13" fill="#e2e4f0">Discrete (i915/Xe)</text>
+  <text x="448" y="370" font-size="12" fill="#8b8fa8">4 nodes · 67%</text>
+  <rect x="430" y="390" width="12" height="12" rx="2" fill="#60a5fa"/>
+  <text x="448" y="402" font-size="13" fill="#e2e4f0">Integrated</text>
+  <text x="448" y="420" font-size="12" fill="#8b8fa8">2 nodes · 33%</text>
+
+  <!-- Operator Status -->
+  <rect x="676" y="248" width="492" height="220" rx="8" fill="#1e2130"/>
+  <text x="696" y="278" font-size="15" font-weight="600" fill="#ffffff">Operator Status</text>
+  <!-- Status rows -->
+  <rect x="696" y="295" width="452" height="40" rx="4" fill="#13151f"/>
+  <circle cx="720" cy="315" r="6" fill="#34d399"/>
+  <text x="736" y="320" font-size="13" fill="#e2e4f0">gpu-device-plugin</text>
+  <text x="1020" y="320" font-size="12" fill="#34d399">Running</text>
+  <text x="1060" y="320" font-size="12" fill="#8b8fa8">6/6</text>
+  <rect x="696" y="343" width="452" height="40" rx="4" fill="#13151f"/>
+  <circle cx="720" cy="363" r="6" fill="#34d399"/>
+  <text x="736" y="368" font-size="13" fill="#e2e4f0">node-feature-discovery</text>
+  <text x="1020" y="368" font-size="12" fill="#34d399">Running</text>
+  <text x="1060" y="368" font-size="12" fill="#8b8fa8">1/1</text>
+  <rect x="696" y="391" width="452" height="40" rx="4" fill="#13151f"/>
+  <circle cx="720" cy="411" r="6" fill="#60a5fa"/>
+  <text x="736" y="416" font-size="13" fill="#e2e4f0">prometheus / node-exporter</text>
+  <text x="1020" y="416" font-size="12" fill="#60a5fa">Available</text>
+  <text x="1060" y="416" font-size="12" fill="#8b8fa8">6/6</text>
+
+  <!-- Recent GPU Pods table -->
+  <rect x="220" y="486" width="948" height="220" rx="8" fill="#1e2130"/>
+  <text x="240" y="516" font-size="15" font-weight="600" fill="#ffffff">Active GPU Pods</text>
+  <!-- Table header -->
+  <rect x="220" y="526" width="948" height="30" fill="#13151f"/>
+  <text x="240" y="546" font-size="12" fill="#8b8fa8" font-weight="600">NAME</text>
+  <text x="480" y="546" font-size="12" fill="#8b8fa8" font-weight="600">NAMESPACE</text>
+  <text x="660" y="546" font-size="12" fill="#8b8fa8" font-weight="600">NODE</text>
+  <text x="860" y="546" font-size="12" fill="#8b8fa8" font-weight="600">GPU REQUEST</text>
+  <text x="1000" y="546" font-size="12" fill="#8b8fa8" font-weight="600">STATUS</text>
+  <!-- Rows -->
+  <rect x="220" y="556" width="948" height="34" fill="#1e2130"/>
+  <text x="240" y="578" font-size="13" fill="#e2e4f0">gpu-inference-7d9c4f</text>
+  <text x="480" y="578" font-size="13" fill="#8b8fa8">ml-workloads</text>
+  <text x="660" y="578" font-size="13" fill="#8b8fa8">gpu-node-01</text>
+  <text x="860" y="578" font-size="13" fill="#a78bfa">2</text>
+  <rect x="998" y="563" width="60" height="20" rx="10" fill="#34d39922"/>
+  <text x="1028" y="578" font-size="12" fill="#34d399" text-anchor="middle">Running</text>
+  <rect x="220" y="590" width="948" height="34" fill="#13151f"/>
+  <text x="240" y="612" font-size="13" fill="#e2e4f0">training-job-abc12</text>
+  <text x="480" y="612" font-size="13" fill="#8b8fa8">training</text>
+  <text x="660" y="612" font-size="13" fill="#8b8fa8">gpu-node-03</text>
+  <text x="860" y="612" font-size="13" fill="#a78bfa">4</text>
+  <rect x="998" y="597" width="60" height="20" rx="10" fill="#34d39922"/>
+  <text x="1028" y="612" font-size="12" fill="#34d399" text-anchor="middle">Running</text>
+  <rect x="220" y="624" width="948" height="34" fill="#1e2130"/>
+  <text x="240" y="646" font-size="13" fill="#e2e4f0">render-worker-9xk2p</text>
+  <text x="480" y="646" font-size="13" fill="#8b8fa8">rendering</text>
+  <text x="660" y="646" font-size="13" fill="#8b8fa8">gpu-node-02</text>
+  <text x="860" y="646" font-size="13" fill="#a78bfa">1</text>
+  <rect x="998" y="631" width="60" height="20" rx="10" fill="#fbbf2422"/>
+  <text x="1028" y="646" font-size="12" fill="#fbbf24" text-anchor="middle">Pending</text>
+</svg>
