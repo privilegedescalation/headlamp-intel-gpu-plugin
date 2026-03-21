@@ -90,6 +90,14 @@ changes:
   - kind: fixed
     description: "Resolve ESLint/Prettier indent conflict by disabling ESLint indent rule (Prettier is formatting authority)"
 
+screenshots:
+  - title: Overview — cluster GPU summary, operator status, and active workloads
+    url: https://raw.githubusercontent.com/privilegedescalation/headlamp-intel-gpu-plugin/main/docs/screenshots/01-overview.svg
+  - title: GPU Nodes — per-node GPU type, capacity, and allocation bars
+    url: https://raw.githubusercontent.com/privilegedescalation/headlamp-intel-gpu-plugin/main/docs/screenshots/02-nodes.svg
+  - title: Metrics — real-time GPU power draw and TDP utilization (discrete GPUs)
+    url: https://raw.githubusercontent.com/privilegedescalation/headlamp-intel-gpu-plugin/main/docs/screenshots/03-metrics.svg
+
 annotations:
   headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.3/intel-gpu-0.4.3.tar.gz"
   headlamp/plugin/archive-checksum: sha256:d9c78b3d678d3e6b92c81315bfed88bd22ec4f5cd63578467206727244db7dab

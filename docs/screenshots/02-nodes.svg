@@ -1,0 +1,142 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" font-family="Inter, Segoe UI, Arial, sans-serif">
+  <!-- Background -->
+  <rect width="1200" height="750" fill="#0f1117"/>
+
+  <!-- Top nav bar -->
+  <rect width="1200" height="48" fill="#1a1d27"/>
+  <text x="16" y="30" font-size="18" font-weight="700" fill="#ffffff">⚡ Headlamp</text>
+  <text x="120" y="30" font-size="14" fill="#8b8fa8">Intel GPU</text>
+  <text x="200" y="30" font-size="14" fill="#8b8fa8">/</text>
+  <text x="214" y="30" font-size="14" fill="#a78bfa">GPU Nodes</text>
+
+  <!-- Sidebar -->
+  <rect x="0" y="48" width="200" height="702" fill="#13151f"/>
+  <text x="16" y="113" font-size="13" fill="#8b8fa8">Overview</text>
+  <text x="16" y="153" font-size="13" fill="#8b8fa8">Device Plugins</text>
+  <rect x="0" y="170" width="200" height="36" fill="#a78bfa22"/>
+  <text x="16" y="193" font-size="13" fill="#a78bfa" font-weight="600">GPU Nodes</text>
+  <text x="16" y="233" font-size="13" fill="#8b8fa8">GPU Pods</text>
+  <text x="16" y="273" font-size="13" fill="#8b8fa8">Metrics</text>
+
+  <!-- Page title -->
+  <text x="220" y="90" font-size="22" font-weight="700" fill="#ffffff">GPU Nodes</text>
+  <text x="220" y="112" font-size="13" fill="#8b8fa8">Per-node GPU capacity, allocatable, allocation, and active workloads</text>
+
+  <!-- Node Card 1 -->
+  <rect x="220" y="130" width="460" height="170" rx="8" fill="#1e2130"/>
+  <rect x="220" y="130" width="460" height="4" rx="2" fill="#a78bfa"/>
+  <text x="240" y="160" font-size="15" font-weight="600" fill="#ffffff">gpu-node-01</text>
+  <rect x="550" y="142" width="80" height="22" rx="11" fill="#34d39922"/>
+  <text x="590" y="158" font-size="12" fill="#34d399" text-anchor="middle">Ready</text>
+  <text x="240" y="183" font-size="12" fill="#8b8fa8">Type</text>
+  <text x="320" y="183" font-size="12" fill="#e2e4f0">Discrete (i915)</text>
+  <text x="240" y="205" font-size="12" fill="#8b8fa8">Capacity</text>
+  <text x="320" y="205" font-size="12" fill="#e2e4f0">4 GPUs</text>
+  <text x="240" y="227" font-size="12" fill="#8b8fa8">Allocatable</text>
+  <text x="320" y="227" font-size="12" fill="#e2e4f0">4 GPUs</text>
+  <!-- Allocation bar -->
+  <text x="240" y="255" font-size="12" fill="#8b8fa8">Allocation</text>
+  <text x="640" y="255" font-size="12" fill="#fb923c" text-anchor="end">75%  (3/4)</text>
+  <rect x="240" y="262" width="380" height="12" rx="6" fill="#2d3148"/>
+  <rect x="240" y="262" width="285" height="12" rx="6" fill="#fb923c"/>
+  <text x="240" y="293" font-size="12" fill="#8b8fa8">Active Pods: </text>
+  <text x="316" y="293" font-size="12" fill="#e2e4f0">gpu-inference-7d9c4f, render-worker-9xk2p</text>
+
+  <!-- Node Card 2 -->
+  <rect x="700" y="130" width="460" height="170" rx="8" fill="#1e2130"/>
+  <rect x="700" y="130" width="460" height="4" rx="2" fill="#a78bfa"/>
+  <text x="720" y="160" font-size="15" font-weight="600" fill="#ffffff">gpu-node-02</text>
+  <rect x="1030" y="142" width="80" height="22" rx="11" fill="#34d39922"/>
+  <text x="1070" y="158" font-size="12" fill="#34d399" text-anchor="middle">Ready</text>
+  <text x="720" y="183" font-size="12" fill="#8b8fa8">Type</text>
+  <text x="800" y="183" font-size="12" fill="#e2e4f0">Discrete (Xe)</text>
+  <text x="720" y="205" font-size="12" fill="#8b8fa8">Capacity</text>
+  <text x="800" y="205" font-size="12" fill="#e2e4f0">2 GPUs</text>
+  <text x="720" y="227" font-size="12" fill="#8b8fa8">Allocatable</text>
+  <text x="800" y="227" font-size="12" fill="#e2e4f0">2 GPUs</text>
+  <!-- Allocation bar -->
+  <text x="720" y="255" font-size="12" fill="#8b8fa8">Allocation</text>
+  <text x="1120" y="255" font-size="12" fill="#34d399" text-anchor="end">50%  (1/2)</text>
+  <rect x="720" y="262" width="380" height="12" rx="6" fill="#2d3148"/>
+  <rect x="720" y="262" width="190" height="12" rx="6" fill="#34d399"/>
+  <text x="720" y="293" font-size="12" fill="#8b8fa8">Active Pods: </text>
+  <text x="796" y="293" font-size="12" fill="#e2e4f0">render-worker-9xk2p</text>
+
+  <!-- Node Card 3 -->
+  <rect x="220" y="318" width="460" height="170" rx="8" fill="#1e2130"/>
+  <rect x="220" y="318" width="460" height="4" rx="2" fill="#a78bfa"/>
+  <text x="240" y="348" font-size="15" font-weight="600" fill="#ffffff">gpu-node-03</text>
+  <rect x="550" y="330" width="80" height="22" rx="11" fill="#34d39922"/>
+  <text x="590" y="346" font-size="12" fill="#34d399" text-anchor="middle">Ready</text>
+  <text x="240" y="371" font-size="12" fill="#8b8fa8">Type</text>
+  <text x="320" y="371" font-size="12" fill="#e2e4f0">Discrete (i915)</text>
+  <text x="240" y="393" font-size="12" fill="#8b8fa8">Capacity</text>
+  <text x="320" y="393" font-size="12" fill="#e2e4f0">8 GPUs</text>
+  <text x="240" y="415" font-size="12" fill="#8b8fa8">Allocatable</text>
+  <text x="320" y="415" font-size="12" fill="#e2e4f0">8 GPUs</text>
+  <!-- Allocation bar -->
+  <text x="240" y="443" font-size="12" fill="#8b8fa8">Allocation</text>
+  <text x="640" y="443" font-size="12" fill="#fb923c" text-anchor="end">100%  (8/8)</text>
+  <rect x="240" y="450" width="380" height="12" rx="6" fill="#2d3148"/>
+  <rect x="240" y="450" width="380" height="12" rx="6" fill="#f87171"/>
+  <text x="240" y="481" font-size="12" fill="#8b8fa8">Active Pods: </text>
+  <text x="316" y="481" font-size="12" fill="#e2e4f0">training-job-abc12 (+3 more)</text>
+
+  <!-- Node Card 4 (integrated) -->
+  <rect x="700" y="318" width="460" height="170" rx="8" fill="#1e2130"/>
+  <rect x="700" y="318" width="460" height="4" rx="2" fill="#60a5fa"/>
+  <text x="720" y="348" font-size="15" font-weight="600" fill="#ffffff">worker-node-05</text>
+  <rect x="1030" y="330" width="80" height="22" rx="11" fill="#34d39922"/>
+  <text x="1070" y="346" font-size="12" fill="#34d399" text-anchor="middle">Ready</text>
+  <text x="720" y="371" font-size="12" fill="#8b8fa8">Type</text>
+  <text x="800" y="371" font-size="12" fill="#e2e4f0">Integrated</text>
+  <text x="720" y="393" font-size="12" fill="#8b8fa8">Capacity</text>
+  <text x="800" y="393" font-size="12" fill="#e2e4f0">1 GPU</text>
+  <text x="720" y="415" font-size="12" fill="#8b8fa8">Allocatable</text>
+  <text x="800" y="415" font-size="12" fill="#e2e4f0">1 GPU</text>
+  <!-- Allocation bar -->
+  <text x="720" y="443" font-size="12" fill="#8b8fa8">Allocation</text>
+  <text x="1120" y="443" font-size="12" fill="#8b8fa8" text-anchor="end">0%  (0/1)</text>
+  <rect x="720" y="450" width="380" height="12" rx="6" fill="#2d3148"/>
+  <text x="720" y="481" font-size="12" fill="#8b8fa8">Active Pods: </text>
+  <text x="796" y="481" font-size="12" fill="#6b7280">none</text>
+
+  <!-- Node Card 5 -->
+  <rect x="220" y="506" width="460" height="170" rx="8" fill="#1e2130"/>
+  <rect x="220" y="506" width="460" height="4" rx="2" fill="#a78bfa"/>
+  <text x="240" y="536" font-size="15" font-weight="600" fill="#ffffff">gpu-node-04</text>
+  <rect x="550" y="518" width="80" height="22" rx="11" fill="#34d39922"/>
+  <text x="590" y="534" font-size="12" fill="#34d399" text-anchor="middle">Ready</text>
+  <text x="240" y="559" font-size="12" fill="#8b8fa8">Type</text>
+  <text x="320" y="559" font-size="12" fill="#e2e4f0">Discrete (i915)</text>
+  <text x="240" y="581" font-size="12" fill="#8b8fa8">Capacity</text>
+  <text x="320" y="581" font-size="12" fill="#e2e4f0">2 GPUs</text>
+  <text x="240" y="603" font-size="12" fill="#8b8fa8">Allocatable</text>
+  <text x="320" y="603" font-size="12" fill="#e2e4f0">2 GPUs</text>
+  <!-- Allocation bar -->
+  <text x="240" y="631" font-size="12" fill="#8b8fa8">Allocation</text>
+  <text x="640" y="631" font-size="12" fill="#34d399" text-anchor="end">25%  (0.5/2)</text>
+  <rect x="240" y="638" width="380" height="12" rx="6" fill="#2d3148"/>
+  <rect x="240" y="638" width="95" height="12" rx="6" fill="#34d399"/>
+  <text x="240" y="669" font-size="12" fill="#8b8fa8">Active Pods: </text>
+  <text x="316" y="669" font-size="12" fill="#e2e4f0">light-inference-pod</text>
+
+  <!-- Node Card 6 (integrated) -->
+  <rect x="700" y="506" width="460" height="170" rx="8" fill="#1e2130"/>
+  <rect x="700" y="506" width="460" height="4" rx="2" fill="#60a5fa"/>
+  <text x="720" y="536" font-size="15" font-weight="600" fill="#ffffff">worker-node-07</text>
+  <rect x="1030" y="518" width="80" height="22" rx="11" fill="#fbbf2422"/>
+  <text x="1070" y="534" font-size="12" fill="#fbbf24" text-anchor="middle">NotReady</text>
+  <text x="720" y="559" font-size="12" fill="#8b8fa8">Type</text>
+  <text x="800" y="559" font-size="12" fill="#e2e4f0">Integrated</text>
+  <text x="720" y="581" font-size="12" fill="#8b8fa8">Capacity</text>
+  <text x="800" y="581" font-size="12" fill="#e2e4f0">1 GPU</text>
+  <text x="720" y="603" font-size="12" fill="#8b8fa8">Allocatable</text>
+  <text x="800" y="603" font-size="12" fill="#8b8fa8">—</text>
+  <!-- Allocation bar -->
+  <text x="720" y="631" font-size="12" fill="#8b8fa8">Allocation</text>
+  <text x="1120" y="631" font-size="12" fill="#6b7280" text-anchor="end">—</text>
+  <rect x="720" y="638" width="380" height="12" rx="6" fill="#2d3148"/>
+  <text x="720" y="669" font-size="12" fill="#8b8fa8">Active Pods: </text>
+  <text x="796" y="669" font-size="12" fill="#6b7280">node unavailable</text>
+</svg>
