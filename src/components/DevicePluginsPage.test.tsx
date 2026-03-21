@@ -124,9 +124,7 @@ describe('DevicePluginsPage', () => {
     );
     render(<DevicePluginsPage />);
     expect(screen.getByText('CRD Not Available')).toBeInTheDocument();
-    expect(
-      screen.getByText(/GpuDevicePlugin CRD.*is not installed/)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/GpuDevicePlugin CRD.*is not installed/)).toBeInTheDocument();
   });
 
   it('shows "No Device Plugins" section when crdAvailable=true but devicePlugins empty', () => {

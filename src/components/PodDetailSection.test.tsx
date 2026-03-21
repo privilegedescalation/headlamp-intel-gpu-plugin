@@ -36,9 +36,7 @@ const nonGpuPodRaw = {
   kind: 'Pod',
   metadata: { name: 'plain-pod', namespace: 'default' },
   spec: {
-    containers: [
-      { name: 'main', resources: { requests: { cpu: '100m', memory: '128Mi' } } },
-    ],
+    containers: [{ name: 'main', resources: { requests: { cpu: '100m', memory: '128Mi' } } }],
   },
   status: { phase: 'Running' },
 };
@@ -86,9 +84,7 @@ describe('PodDetailSection', () => {
   });
 
   it('renders nothing for a non-GPU pod passed via jsonData', () => {
-    const { container } = render(
-      <PodDetailSection resource={{ jsonData: nonGpuPodRaw }} />
-    );
+    const { container } = render(<PodDetailSection resource={{ jsonData: nonGpuPodRaw }} />);
     expect(container).toBeEmptyDOMElement();
   });
 

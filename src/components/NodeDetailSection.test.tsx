@@ -89,9 +89,7 @@ describe('NodeDetailSection', () => {
 
   it('renders nothing for a non-GPU node passed via jsonData wrapper', () => {
     vi.mocked(useIntelGpuContext).mockReturnValue(makeContext());
-    const { container } = render(
-      <NodeDetailSection resource={{ jsonData: nonGpuNodeRaw }} />
-    );
+    const { container } = render(<NodeDetailSection resource={{ jsonData: nonGpuNodeRaw }} />);
     expect(container).toBeEmptyDOMElement();
   });
 
@@ -132,9 +130,7 @@ describe('NodeDetailSection', () => {
       metadata: { name: 'my-gpu-pod', namespace: 'default', uid: 'uid-pod-1' },
       spec: {
         nodeName: 'gpu-node-1',
-        containers: [
-          { name: 'main', resources: { requests: { 'gpu.intel.com/i915': '1' } } },
-        ],
+        containers: [{ name: 'main', resources: { requests: { 'gpu.intel.com/i915': '1' } } }],
       },
       status: { phase: 'Running' },
     };

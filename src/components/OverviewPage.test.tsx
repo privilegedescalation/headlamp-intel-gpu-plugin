@@ -109,7 +109,10 @@ describe('OverviewPage', () => {
         name: 'gpu-node-1',
         labels: { 'intel.feature.node.kubernetes.io/gpu': 'true' },
       },
-      status: { capacity: { 'gpu.intel.com/i915': '1' }, allocatable: { 'gpu.intel.com/i915': '1' } },
+      status: {
+        capacity: { 'gpu.intel.com/i915': '1' },
+        allocatable: { 'gpu.intel.com/i915': '1' },
+      },
     };
     vi.mocked(useIntelGpuContext).mockReturnValue(
       makeContext({ loading: false, pluginInstalled: true, gpuNodes: [node] })

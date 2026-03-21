@@ -135,9 +135,7 @@ describe('PodsPage', () => {
 
   it('shows summary section with total count when pods present', () => {
     const pods = [makeRunningPod('pod-1'), makeRunningPod('pod-2')];
-    vi.mocked(useIntelGpuContext).mockReturnValue(
-      makeContext({ loading: false, gpuPods: pods })
-    );
+    vi.mocked(useIntelGpuContext).mockReturnValue(makeContext({ loading: false, gpuPods: pods }));
     render(<PodsPage />);
     expect(screen.getByText('Summary')).toBeInTheDocument();
     // 'Total GPU Pods' label is present; '2' appears in multiple places (row value + status label)
@@ -147,9 +145,7 @@ describe('PodsPage', () => {
 
   it('shows "Attention: Pending GPU Pods" section when pending pods exist', () => {
     const pods = [makePendingPod('pending-pod-1')];
-    vi.mocked(useIntelGpuContext).mockReturnValue(
-      makeContext({ loading: false, gpuPods: pods })
-    );
+    vi.mocked(useIntelGpuContext).mockReturnValue(makeContext({ loading: false, gpuPods: pods }));
     render(<PodsPage />);
     expect(screen.getByText('Attention: Pending GPU Pods')).toBeInTheDocument();
     // Pod name appears in both the main "All GPU Pods" table and the pending attention table
@@ -166,9 +162,7 @@ describe('PodsPage', () => {
 
   it('shows "All GPU Pods" table with pod name when pods present', () => {
     const pods = [makeRunningPod('my-workload')];
-    vi.mocked(useIntelGpuContext).mockReturnValue(
-      makeContext({ loading: false, gpuPods: pods })
-    );
+    vi.mocked(useIntelGpuContext).mockReturnValue(makeContext({ loading: false, gpuPods: pods }));
     render(<PodsPage />);
     expect(screen.getByText('All GPU Pods')).toBeInTheDocument();
     expect(screen.getByText('my-workload')).toBeInTheDocument();
