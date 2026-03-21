@@ -1,4 +1,4 @@
-version: "0.4.3"
+version: "1.0.0"
 name: headlamp-intel-gpu
 displayName: Intel GPU
 description: >-
@@ -99,7 +99,7 @@ screenshots:
     url: https://raw.githubusercontent.com/privilegedescalation/headlamp-intel-gpu-plugin/main/docs/screenshots/03-metrics.svg
 
 annotations:
-  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v0.4.3/intel-gpu-0.4.3.tar.gz"
-  headlamp/plugin/archive-checksum: sha256:d9c78b3d678d3e6b92c81315bfed88bd22ec4f5cd63578467206727244db7dab
+  headlamp/plugin/archive-url: "https://github.com/privilegedescalation/headlamp-intel-gpu-plugin/releases/download/v1.0.0/intel-gpu-1.0.0.tar.gz"
+  headlamp/plugin/archive-checksum: sha256:93d6c531e7c12440c9625138f0645fc0c3521b574d0089492759699b324943f0
   headlamp/plugin/version-compat: ">=0.20.0"
   headlamp/plugin/distro-compat: "in-cluster,web,app"
