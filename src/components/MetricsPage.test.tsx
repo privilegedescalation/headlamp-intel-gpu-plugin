@@ -1,9 +1,8 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { IntelGpuContextValue, useIntelGpuContext } from '../api/IntelGpuDataContext';
-import { fetchGpuMetrics } from '../api/metrics';
-import { GpuMetrics, GpuChipMetrics } from '../api/metrics';
+import { GpuChipMetrics, GpuMetrics, fetchGpuMetrics } from '../api/metrics';
 import MetricsPage from './MetricsPage';
 
 vi.mock('@kinvolk/headlamp-plugin/lib/CommonComponents', () => ({
