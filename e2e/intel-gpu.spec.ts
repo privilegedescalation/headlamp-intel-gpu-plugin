@@ -57,13 +57,24 @@ test.describe('Intel GPU plugin smoke tests', () => {
   });
 
   test('navigation between plugin views works', async ({ page }) => {
-    await page.goto('/c/main/intel-gpu');
+    await page.goto('/');
+    const sidebar = page.getByRole('navigation', { name: 'Navigation' });
+    await expect(sidebar).toBeVisible({ timeout: 15_000 });
+
+    // Expand the intel-gpu sidebar section by clicking the parent entry.
+    // Direct URL navigation does not guarantee the sidebar children are rendered;
+    // clicking the parent entry mimics the real user flow and ensures child links
+    // are visible before we try to interact with them.
+    const gpuEntry = sidebar.getByRole('button', { name: 'intel-gpu' });
+    await expect(gpuEntry).toBeVisible();
+    await gpuEntry.click();
+
+    await expect(page).toHaveURL(/\/intel-gpu$/);
     await expect(page.getByRole('heading', { name: /intel.gpu/i })).toBeVisible({
       timeout: 15_000,
     });
 
     // Navigate to GPU Nodes
-    const sidebar = page.getByRole('navigation', { name: 'Navigation' });
     const nodesLink = sidebar.getByRole('link', { name: /gpu nodes/i });
     await expect(nodesLink).toBeVisible();
     await nodesLink.click();
