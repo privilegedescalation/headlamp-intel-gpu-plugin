@@ -2,3 +2,7 @@ node_modules/
 dist/
 *.tar.gz
 .playwright-mcp/
+e2e/.auth/state.json
+.env.e2e
+test-results/
+playwright-report/
