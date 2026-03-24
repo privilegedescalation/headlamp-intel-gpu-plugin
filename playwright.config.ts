@@ -9,7 +9,7 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   reporter: 'list',
   use: {
-    baseURL: process.env.HEADLAMP_URL || 'https://headlamp.animaniacs.farh.net',
+    baseURL: process.env.HEADLAMP_URL || (() => { throw new Error('HEADLAMP_URL is required — run scripts/deploy-e2e-headlamp.sh first'); })(),
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
