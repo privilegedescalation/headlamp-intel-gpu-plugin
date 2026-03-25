@@ -230,10 +230,6 @@ export default function MetricsPage() {
     };
   }, [ctxLoading, fetchSeq]);
 
-  if (ctxLoading) {
-    return <Loader title="Loading Intel GPU data..." />;
-  }
-
   return (
     <>
       <div
@@ -247,7 +243,7 @@ export default function MetricsPage() {
         <SectionHeader title="Intel GPU — Metrics" />
         <button
           onClick={() => void doFetch()}
-          disabled={fetching}
+          disabled={fetching || ctxLoading}
           aria-label="Refresh metrics"
           style={{
             padding: '6px 16px',
@@ -255,14 +251,17 @@ export default function MetricsPage() {
             color: 'var(--mui-palette-primary-main, #0071c5)',
             border: '1px solid var(--mui-palette-primary-main, #0071c5)',
             borderRadius: '4px',
-            cursor: 'pointer',
+            cursor: fetching || ctxLoading ? 'not-allowed' : 'pointer',
             fontSize: '13px',
             fontWeight: 500,
+            opacity: fetching || ctxLoading ? 0.6 : 1,
           }}
         >
           {fetching ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>
+
+      {ctxLoading && <Loader title="Loading Intel GPU data..." />}
 
       <MetricRequirements />
 
