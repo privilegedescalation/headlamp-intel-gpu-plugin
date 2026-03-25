@@ -157,20 +157,20 @@ describe('IntelGpuDataProvider', () => {
     const nodeWrapper = { jsonData: {} };
     vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[nodeWrapper], null] as any);
     vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[nodeWrapper], null] as any);
-    vi.mocked(ApiProxy.request).mockReturnValue(new Promise(() => {}));
+    vi.mocked(ApiProxy.request)
+      .mockReturnValueOnce(new Promise(() => {}))
+      .mockResolvedValueOnce({ items: [] })
+      .mockResolvedValueOnce({ items: [] })
+      .mockResolvedValueOnce({ items: [] });
 
     const { result } = renderHook(() => useIntelGpuContext(), { wrapper: Wrapper });
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(1999);
-    });
     expect(result.current.loading).toBe(true);
 
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(200);
-    });
-    await waitFor(() => expect(result.current.loading).toBe(false));
+    vi.advanceTimersByTime(2000);
+    await act(async () => {});
     expect(result.current.crdAvailable).toBe(false);
+    expect(result.current.loading).toBe(false);
 
     vi.useRealTimers();
   });
