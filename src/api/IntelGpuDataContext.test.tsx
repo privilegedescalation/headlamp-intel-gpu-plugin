@@ -151,4 +151,21 @@ describe('IntelGpuDataProvider', () => {
       expect(callCountAfter).toBeGreaterThan(callCountBefore);
     });
   });
+
+  it('treats a hanging CRD request as unavailable after 2s timeout', async () => {
+    vi.useFakeTimers();
+    vi.mocked(K8s.ResourceClasses.Node.useList).mockReturnValue([[], null] as any);
+    vi.mocked(K8s.ResourceClasses.Pod.useList).mockReturnValue([[], null] as any);
+    vi.mocked(ApiProxy.request).mockReturnValue(new Promise(() => {}));
+
+    const { result } = renderHook(() => useIntelGpuContext(), { wrapper: Wrapper });
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.crdAvailable).toBe(false);
+    vi.useRealTimers();
+  });
 });
