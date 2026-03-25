@@ -154,10 +154,7 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
 
         for (const url of pluginPodSelectors) {
           try {
-            const list = await withTimeout(
-              ApiProxy.request(url),
-              DEFAULT_REQUEST_TIMEOUT_MS
-            );
+            const list = await withTimeout(ApiProxy.request(url), DEFAULT_REQUEST_TIMEOUT_MS);
             if (!cancelled && isKubeList(list)) {
               const gpuPluginPods = filterIntelGpuPluginPods(list.items);
               foundPluginPods.push(...gpuPluginPods);
