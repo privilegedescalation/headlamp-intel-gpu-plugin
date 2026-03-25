@@ -69,6 +69,18 @@ export function useIntelGpuContext(): IntelGpuContextValue {
 // Helpers
 // ---------------------------------------------------------------------------
 
+const DEFAULT_REQUEST_TIMEOUT_MS = 2_000;
+
+/** Wraps a promise with a timeout, rejecting if it doesn't settle within ms. */
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`Request timed out after ${ms}ms`)), ms)
+    ),
+  ]);
+}
+
 /** Extract raw Kubernetes JSON from Headlamp KubeObject wrappers. */
 const extractJsonData = (items: unknown[]): unknown[] =>
   items.map(item =>
@@ -108,8 +120,11 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
       try {
         // GpuDevicePlugin CRDs — graceful degradation if CRD not installed
         try {
-          const pluginList = await ApiProxy.request(
-            `/apis/${INTEL_DEVICE_PLUGIN_API_GROUP}/${INTEL_DEVICE_PLUGIN_API_VERSION}/gpudeviceplugins`
+          const pluginList = await withTimeout(
+            ApiProxy.request(
+              `/apis/${INTEL_DEVICE_PLUGIN_API_GROUP}/${INTEL_DEVICE_PLUGIN_API_VERSION}/gpudeviceplugins`
+            ),
+            DEFAULT_REQUEST_TIMEOUT_MS
           );
           if (!cancelled && isKubeList(pluginList)) {
             setCrdAvailable(true);
@@ -139,7 +154,10 @@ export function IntelGpuDataProvider({ children }: { children: React.ReactNode }
 
         for (const url of pluginPodSelectors) {
           try {
-            const list = await ApiProxy.request(url);
+            const list = await withTimeout(
+              ApiProxy.request(url),
+              DEFAULT_REQUEST_TIMEOUT_MS
+            );
             if (!cancelled && isKubeList(list)) {
               const gpuPluginPods = filterIntelGpuPluginPods(list.items);
               foundPluginPods.push(...gpuPluginPods);
