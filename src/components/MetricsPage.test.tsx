@@ -106,11 +106,13 @@ describe('MetricsPage', () => {
     vi.clearAllMocks();
   });
 
-  it('shows loader when ctxLoading=true', () => {
+  it('shows loader when ctxLoading=true but heading is visible immediately', () => {
     vi.mocked(useIntelGpuContext).mockReturnValue(makeContext({ loading: true }));
     // fetchGpuMetrics should never be called in loading state
     vi.mocked(fetchGpuMetrics).mockResolvedValue(null);
     render(<MetricsPage />);
+    // Heading renders immediately, loader appears below it while waiting for context
+    expect(screen.getByText('Intel GPU — Metrics')).toBeInTheDocument();
     expect(screen.getByTestId('loader')).toHaveTextContent('Loading Intel GPU data...');
   });
 
