@@ -66,7 +66,7 @@ test.describe('Intel GPU plugin smoke tests', () => {
     });
 
     await page.goto('/c/main/intel-gpu/nodes');
-    await expect(page.getByRole('heading', { name: /node/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /intel gpu.*nodes/i })).toBeVisible({ timeout: 15_000 });
 
     await page.goto('/c/main/intel-gpu/pods');
     await expect(page.getByRole('heading', { name: /pod/i })).toBeVisible({ timeout: 15_000 });
