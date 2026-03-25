@@ -1,0 +1,64 @@
+name: Workflow Recovery
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  recover-stuck-runs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        if: vars.RELEASE_APP_ID != ''
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: privilegedescalation
+
+      - name: Detect and re-run stuck action_required runs
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token || github.token }}
+        run: |
+          echo "Checking for action_required runs in privilegedescalation org..."
+          
+          RUNS=$(curl -sf -H "Authorization: Bearer $GH_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/orgs/privilegedescalation/actions/runs?status=action_required&per_page=50" \
+            || echo '{"workflow_runs": []}')
+          
+          COUNT=$(echo "$RUNS" | jq '.workflow_runs | length')
+          echo "Found $COUNT action_required runs"
+          
+          if [ "$COUNT" = "0" ] || [ "$COUNT" = "null" ]; then
+            echo "No stuck runs found. Exiting."
+            exit 0
+          fi
+          
+          echo "$RUNS" | jq -r '.workflow_runs[] | @json' | while read -r run; do
+            RUN_ID=$(echo "$run" | jq -r '.id')
+            WORKFLOW_NAME=$(echo "$run" | jq -r '.name')
+            REPO=$(echo "$run" | jq -r '.repository.full_name')
+            BRANCH=$(echo "$run" | jq -r '.head_branch')
+            CREATED_AT=$(echo "$run" | jq -r '.created_at')
+            
+            echo "Found stuck run: $WORKFLOW_NAME (#$RUN_ID) on $REPO branch $BRANCH"
+            echo "Created at: $CREATED_AT"
+            echo "Re-running..."
+            
+            RESP=$(curl -sf -X POST \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$REPO/actions/runs/$RUN_ID/rerun" \
+              -w "\n%{http_code}")
+            
+            HTTP_CODE=$(echo "$RESP" | tail -1)
+            if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "204" ]; then
+              echo "Successfully re-ran $WORKFLOW_NAME (#$RUN_ID)"
+            else
+              echo "Failed to re-run $WORKFLOW_NAME (#$RUN_ID): $HTTP_CODE"
+            fi
+          done
