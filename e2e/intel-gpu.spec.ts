@@ -43,7 +43,7 @@ test.describe('Intel GPU plugin smoke tests', () => {
   test('device plugins page renders or shows empty state', async ({ page }) => {
     await page.goto('/c/main/intel-gpu/device-plugins');
 
-    await expect(page.getByRole('heading', { name: /device plugin/i })).toBeVisible({
+    await expect(page.getByRole('heading', { name: /Intel GPU — Device Plugins/i })).toBeVisible({
       timeout: 15_000,
     });
 
@@ -66,13 +66,13 @@ test.describe('Intel GPU plugin smoke tests', () => {
     });
 
     await page.goto('/c/main/intel-gpu/nodes');
-    await expect(page.getByRole('heading', { name: /node/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /Intel GPU — Nodes/i })).toBeVisible({ timeout: 15_000 });
 
     await page.goto('/c/main/intel-gpu/pods');
-    await expect(page.getByRole('heading', { name: /pod/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /Intel GPU — Pods/i })).toBeVisible({ timeout: 15_000 });
 
     await page.goto('/c/main/intel-gpu/metrics');
-    await expect(page.getByRole('heading', { name: /metric/i })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { name: /Intel GPU — Metrics/i })).toBeVisible({ timeout: 15_000 });
   });
 
   test('plugin settings page shows intel-gpu plugin entry', async ({ page }) => {
