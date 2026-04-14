@@ -19,14 +19,14 @@ test.describe('Intel GPU plugin smoke tests', () => {
 
     // Should navigate to the overview route
     await expect(page).toHaveURL(/\/intel-gpu$/);
-    await expect(page.getByRole('heading', { name: /intel.gpu/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /Intel GPU — Overview/i })).toBeVisible();
   });
 
   test('overview page renders GPU device list or empty state', async ({ page }) => {
     await page.goto('/c/main/intel-gpu');
 
     // Overview heading should be present
-    await expect(page.getByRole('heading', { name: /intel.gpu/i })).toBeVisible({
+    await expect(page.getByRole('heading', { name: /Intel GPU — Overview/i })).toBeVisible({
       timeout: 15_000,
     });
 
@@ -61,7 +61,7 @@ test.describe('Intel GPU plugin smoke tests', () => {
     // not after clicking the parent entry from the overview. Test route
     // accessibility via direct navigation — each route must render its heading.
     await page.goto('/c/main/intel-gpu');
-    await expect(page.getByRole('heading', { name: /intel.gpu/i })).toBeVisible({
+    await expect(page.getByRole('heading', { name: /Intel GPU — Overview/i })).toBeVisible({
       timeout: 15_000,
     });
 
