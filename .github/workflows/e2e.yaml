@@ -51,6 +51,9 @@ jobs:
       - name: Build plugin
         run: npx @kinvolk/headlamp-plugin build
 
+      - name: Apply RBAC for E2E runner
+        run: kubectl apply -f deployment/e2e-ci-runner-rbac.yaml
+
       - name: Deploy E2E Headlamp instance
         run: scripts/deploy-e2e-headlamp.sh
 
