@@ -40,7 +40,7 @@ if ! kubectl auth can-i delete configmaps -n "$E2E_NAMESPACE" --quiet 2>/dev/nul
 fi
 
 echo "=== E2E Headlamp Deployment ==="
-echo "  Image:     ghcr.io/headlamp-k8s/headlamp:${HEADLAMP_VERSION}"
+echo "  Image:     ghcr.io/headlamp-plugins/headlamp:${HEADLAMP_VERSION}"
 echo "  Namespace: $E2E_NAMESPACE"
 echo "  Release:   $E2E_RELEASE"
 
@@ -101,7 +101,7 @@ spec:
       securityContext: {}
       containers:
         - name: headlamp
-          image: ghcr.io/headlamp-k8s/headlamp:${HEADLAMP_VERSION}
+          image: ghcr.io/headlamp-plugins/headlamp:${HEADLAMP_VERSION}
           imagePullPolicy: IfNotPresent
           securityContext:
             runAsNonRoot: true
