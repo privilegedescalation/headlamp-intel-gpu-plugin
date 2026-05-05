@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 # Only one E2E run at a time: the shared E2E_RELEASE (headlamp-e2e) in
-# headlamp-dev cannot be shared across concurrent runs.
+# privilegedescalation-dev cannot be shared across concurrent runs.
 # cancel-in-progress: false (queue, don't cancel) — cancelling in-flight
 # runs may skip the if: always() teardown, leaving dangling cluster resources.
 concurrency:
@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  E2E_NAMESPACE: headlamp-dev
+  E2E_NAMESPACE: privilegedescalation-dev
   E2E_RELEASE: headlamp-e2e
   # Pin to a known-good Headlamp version. Using :latest is risky because
   # the tag can change between CI runs, causing flaky failures when a newer
