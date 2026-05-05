@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  E2E_NAMESPACE: privilegedescalation-dev
+  E2E_NAMESPACE: headlamp-plugins-e2e
   E2E_RELEASE: headlamp-e2e
   # Pin to a known-good Headlamp version. Using :latest is risky because
   # the tag can change between CI runs, causing flaky failures when a newer
