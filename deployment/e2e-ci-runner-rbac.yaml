@@ -3,7 +3,7 @@
 #
 # Grants the GitHub Actions runner's service account (Arc Runners) the minimum
 # permissions needed to deploy/teardown an E2E Headlamp instance in the
-# headlamp-dev namespace.
+# headlamp-plugins-e2e namespace.
 #
 # RBAC is managed via Flux from privilegedescalation/infra — do not apply manually.
 # This manifest is a reference copy in the plugin repo.
@@ -12,7 +12,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: e2e-ci-runner
-  namespace: headlamp-dev
+  namespace: headlamp-plugins-e2e
 rules:
   - apiGroups: [""]
     resources: ["configmaps", "serviceaccounts", "events"]
@@ -31,7 +31,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: e2e-ci-runner
-  namespace: headlamp-dev
+  namespace: headlamp-plugins-e2e
 subjects:
   - kind: ServiceAccount
     name: runners-privilegedescalation-gha-rs-no-permission
