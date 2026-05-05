@@ -59,10 +59,15 @@ kubectl create configmap headlamp-intel-gpu-plugin \
   --from-file=package.json="$REPO_ROOT/package.json"
 
 # --- Tear down any existing E2E deployment for a clean start ---
+# Deleting the Deployment forces a fresh pod (new ReplicaSet) regardless of
+# whether the pod spec changed. The ServiceAccount is also deleted for a clean
+# token state. The Service is NOT deleted — leaving it in place avoids an
+# Endpoints UID race (FailedToUpdateEndpoint) that causes DNS resolution
+# failures. kubectl apply below upserts the Service in-place, and the new
+# pod's IP is added to the existing Endpoints automatically.
 echo ""
 echo "Removing any existing E2E deployment (clean-start)..."
 kubectl delete deployment "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
-kubectl delete service "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
 kubectl delete serviceaccount "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
 
 # --- Deploy Headlamp via kubectl apply ---
