@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 # Only one E2E run at a time: the shared E2E_RELEASE (headlamp-e2e) in
-# privilegedescalation-dev cannot be shared across concurrent runs.
+# headlamp-plugins-e2e cannot be shared across concurrent runs.
 # cancel-in-progress: false (queue, don't cancel) — cancelling in-flight
 # runs may skip the if: always() teardown, leaving dangling cluster resources.
 concurrency:
