@@ -5,7 +5,9 @@
 # permissions needed to deploy/teardown an E2E Headlamp instance in the
 # privilegedescalation-dev namespace.
 #
-# Applied automatically by the E2E workflow before deploy-e2e-headlamp.sh runs.
+# RBAC is managed via Flux from privilegedescalation/infra — do not apply manually.
+# This manifest is a reference copy in the plugin repo.
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
