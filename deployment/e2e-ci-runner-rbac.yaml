@@ -1,42 +1,12 @@
 ---
-# e2e-ci-runner-rbac.yaml
+# RBAC for the GitHub Actions CI runner to manage E2E Headlamp instances.
+# CI-only test fixture — NOT for production use.
 #
-# Grants the GitHub Actions runner's service account (Arc Runners) the minimum
-# permissions needed to deploy/teardown an E2E Headlamp instance in the
-# headlamp-plugins-e2e namespace.
+# This file is a REFERENCE ONLY. The canonical manifest lives in:
+#   privilegedescalation/infra/base/rbac/e2e-ci-runner-headlamp-rbac.yaml
 #
+# The infra repo is managed by Flux GitOps and is the source of truth.
+# Do not apply this file directly — it is kept here for developer reference only.
+#
+# E2E resources run in `privilegedescalation-dev` — nothing persists beyond a test run.
 # RBAC is managed via Flux from privilegedescalation/infra — do not apply manually.
-# This manifest is a reference copy in the plugin repo.
-
-apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
-metadata:
-  name: e2e-ci-runner
-  namespace: headlamp-plugins-e2e
-rules:
-  - apiGroups: [""]
-    resources: ["configmaps", "serviceaccounts", "events"]
-    verbs: ["get", "list", "create", "delete"]
-  - apiGroups: ["apps"]
-    resources: ["deployments"]
-    verbs: ["get", "create", "delete"]
-  - apiGroups: [""]
-    resources: ["services"]
-    verbs: ["get", "create", "delete"]
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["get", "list"]
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
-metadata:
-  name: e2e-ci-runner
-  namespace: headlamp-plugins-e2e
-subjects:
-  - kind: ServiceAccount
-    name: runners-privilegedescalation-gha-rs-no-permission
-    namespace: arc-runners
-roleRef:
-  kind: Role
-  name: e2e-ci-runner
-  apiGroup: rbac.authorization.k8s.io
