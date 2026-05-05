@@ -5,7 +5,7 @@
 # a ConfigMap volume mount. No custom Docker images — the plugin is built
 # in CI and injected as a ConfigMap.
 #
-# E2E resources are deployed to the `privilegedescalation-dev` namespace. Nothing
+# E2E resources are deployed to the `headlamp-dev` namespace. Nothing
 # persists beyond the test run — teardown cleans up all created resources.
 #
 # Prerequisites:
@@ -14,7 +14,7 @@
 #   - RBAC applied: kubectl apply -f deployment/e2e-ci-runner-rbac.yaml
 #
 # Environment:
-#   E2E_NAMESPACE     — namespace for E2E Headlamp (default: privilegedescalation-dev)
+#   E2E_NAMESPACE     — namespace for E2E Headlamp (default: headlamp-dev)
 #   E2E_RELEASE       — release/resource name prefix (default: headlamp-e2e)
 #   HEADLAMP_VERSION  — Headlamp image tag (default: latest)
 set -euo pipefail
@@ -22,7 +22,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DIST_DIR="$REPO_ROOT/dist"
 
-E2E_NAMESPACE="${E2E_NAMESPACE:-privilegedescalation-dev}"
+E2E_NAMESPACE="${E2E_NAMESPACE:-headlamp-dev}"
 E2E_RELEASE="${E2E_RELEASE:-headlamp-e2e}"
 HEADLAMP_VERSION="${HEADLAMP_VERSION:-latest}"
 
@@ -59,10 +59,15 @@ kubectl create configmap headlamp-intel-gpu-plugin \
   --from-file=package.json="$REPO_ROOT/package.json"
 
 # --- Tear down any existing E2E deployment for a clean start ---
+# Deleting the Deployment forces a fresh pod (new ReplicaSet) regardless of
+# whether the pod spec changed. The ServiceAccount is also deleted for a clean
+# token state. The Service is NOT deleted — leaving it in place avoids an
+# Endpoints UID race (FailedToUpdateEndpoint) that causes DNS resolution
+# failures. kubectl apply below upserts the Service in-place, and the new
+# pod's IP is added to the existing Endpoints automatically.
 echo ""
 echo "Removing any existing E2E deployment (clean-start)..."
 kubectl delete deployment "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
-kubectl delete service "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
 kubectl delete serviceaccount "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
 
 # --- Deploy Headlamp via kubectl apply ---
