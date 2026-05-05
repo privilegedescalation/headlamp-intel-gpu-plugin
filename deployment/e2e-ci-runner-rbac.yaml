@@ -12,9 +12,6 @@ metadata:
   name: e2e-ci-runner
   namespace: privilegedescalation-dev
 rules:
-  - apiGroups: ["rbac.authorization.k8s.io"]
-    resources: ["rolebindings"]
-    verbs: ["get", "list", "watch"]
   - apiGroups: [""]
     resources: ["configmaps", "serviceaccounts", "events"]
     verbs: ["get", "list", "create", "delete"]
