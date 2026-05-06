@@ -5,18 +5,16 @@
 # a ConfigMap volume mount. No custom Docker images — the plugin is built
 # in CI and injected as a ConfigMap.
 #
-# E2E resources are deployed to the `headlamp-plugins-e2e` namespace. Nothing
+# E2E resources are deployed to the `headlamp-dev` namespace. Nothing
 # persists beyond the test run — teardown cleans up all created resources.
 #
 # Prerequisites:
 #   - Plugin built (dist/ exists with plugin-main.js + package.json)
 #   - kubectl configured with cluster access
-# RBAC is managed via Flux from privilegedescalation/infra/base/rbac/e2e-ci-runner-headlamp-rbac.yaml.
-# The infra repo is the source of truth — do not apply this file directly.
-# Apply RBAC first: kubectl apply -f privilegedescalation/infra/base/rbac/e2e-ci-runner-headlamp-rbac.yaml
+#   - RBAC applied: kubectl apply -f deployment/e2e-ci-runner-rbac.yaml
 #
 # Environment:
-#   E2E_NAMESPACE     — namespace for E2E Headlamp (default: headlamp-plugins-e2e)
+#   E2E_NAMESPACE     — namespace for E2E Headlamp (default: headlamp-dev)
 #   E2E_RELEASE       — release/resource name prefix (default: headlamp-e2e)
 #   HEADLAMP_VERSION  — Headlamp image tag (default: latest)
 set -euo pipefail
@@ -24,7 +22,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DIST_DIR="$REPO_ROOT/dist"
 
-E2E_NAMESPACE="${E2E_NAMESPACE:-headlamp-plugins-e2e}"
+E2E_NAMESPACE="${E2E_NAMESPACE:-headlamp-dev}"
 E2E_RELEASE="${E2E_RELEASE:-headlamp-e2e}"
 HEADLAMP_VERSION="${HEADLAMP_VERSION:-latest}"
 
@@ -37,7 +35,7 @@ fi
 echo "Checking RBAC permissions in namespace '${E2E_NAMESPACE}'..."
 if ! kubectl auth can-i delete configmaps -n "$E2E_NAMESPACE" --quiet 2>/dev/null; then
   echo "ERROR: Missing RBAC — cannot delete configmaps in namespace '${E2E_NAMESPACE}'." >&2
-  echo "  Apply RBAC first: kubectl apply -f privilegedescalation/infra/base/rbac/e2e-ci-runner-headlamp-rbac.yaml" >&2
+  echo "  Apply RBAC first: kubectl apply -f deployment/e2e-ci-runner-rbac.yaml" >&2
   exit 1
 fi
 
@@ -61,10 +59,15 @@ kubectl create configmap headlamp-intel-gpu-plugin \
   --from-file=package.json="$REPO_ROOT/package.json"
 
 # --- Tear down any existing E2E deployment for a clean start ---
+# Deleting the Deployment forces a fresh pod (new ReplicaSet) regardless of
+# whether the pod spec changed. The ServiceAccount is also deleted for a clean
+# token state. The Service is NOT deleted — leaving it in place avoids an
+# Endpoints UID race (FailedToUpdateEndpoint) that causes DNS resolution
+# failures. kubectl apply below upserts the Service in-place, and the new
+# pod's IP is added to the existing Endpoints automatically.
 echo ""
 echo "Removing any existing E2E deployment (clean-start)..."
 kubectl delete deployment "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
-kubectl delete service "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
 kubectl delete serviceaccount "${E2E_RELEASE}" -n "$E2E_NAMESPACE" --ignore-not-found --wait
 
 # --- Deploy Headlamp via kubectl apply ---
