@@ -20,6 +20,9 @@ A [Headlamp](https://headlamp.dev/) plugin providing visibility into [Intel GPU 
 
 Search for `headlamp-intel-gpu` in the Headlamp Plugin Manager (Settings → Plugins → Catalog).
 
+> See [Plugin Installation Policy](https://git.farh.net/privilegedescalation/org/wiki/Plugin-Installation-Policy) for approved installation methods.
+
+
 ## Requirements
 
 - Headlamp >= v0.20.0
