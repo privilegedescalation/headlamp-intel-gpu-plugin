@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install Python
-        run: sudo apt-get update && sudo apt-get install -y python3 python3-yaml || true
+        run: sudo apt-get update && sudo apt-get install -y python3 python3-yaml
 
       - name: Validate artifacthub-pkg.yml
         run: |
@@ -29,8 +29,8 @@ jobs:
           try:
               import yaml
           except ImportError:
-              print("::warning::PyYAML not available, skipping artifacthub-pkg.yml validation")
-              sys.exit(0)
+              print("::error::PyYAML not available — install failed or was skipped. Validation cannot proceed.")
+              sys.exit(1)
 
           try:
               with open("artifacthub-pkg.yml") as f:
