@@ -7,6 +7,6 @@
     },
     "kubernetes": { "type": "sse", "url": "http://localhost:8080/sse" },
     "flux": { "type": "sse", "url": "http://localhost:8081/sse" },
-    "playwright": { "type": "sse", "url": "http://localhost:8086/sse" }
+    "playwright": { "type": "sse", "url": "http://${PLAYWRIGHT_PRIVILEGEDESCALATION_SERVICE_HOST}:${PLAYWRIGHT_PRIVILEGEDESCALATION_SERVICE_PORT}/sse" }
   }
 }
