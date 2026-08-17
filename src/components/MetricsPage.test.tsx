@@ -69,6 +69,10 @@ vi.mock('../api/metrics', () => ({
   formatWatts: (w: number) => `${w.toFixed(1)} W`,
   formatPercent: (used: number, max: number) =>
     max <= 0 ? '—' : `${Math.round((used / max) * 100)}%`,
+  getCheckedServicesDescription: vi.fn(
+    () =>
+      'kube-prometheus-stack-prometheus:9090 (monitoring namespace), prometheus-operated:9090 (monitoring namespace), prometheus:9090 (monitoring namespace)'
+  ),
 }));
 
 function makeContext(overrides: Partial<IntelGpuContextValue> = {}): IntelGpuContextValue {

@@ -13,6 +13,7 @@
 
 import {
   registerDetailsViewSection,
+  registerPluginSettings,
   registerResourceTableColumnsProcessor,
   registerRoute,
   registerSidebarEntry,
@@ -27,6 +28,7 @@ import NodesPage from './components/NodesPage';
 import OverviewPage from './components/OverviewPage';
 import PodDetailSection from './components/PodDetailSection';
 import PodsPage from './components/PodsPage';
+import SettingsPage from './components/SettingsPage';
 
 // ---------------------------------------------------------------------------
 // Sidebar entries
@@ -180,3 +182,12 @@ registerResourceTableColumnsProcessor(({ id, columns }) => {
   }
   return columns;
 });
+
+// ---------------------------------------------------------------------------
+// Plugin settings — Prometheus service discovery configuration
+// Registers a settings page under Settings → Plugins → intel-gpu that
+// allows users to configure the Prometheus namespace/service/port for
+// non-default kube-prometheus-stack deployments.
+// ---------------------------------------------------------------------------
+
+registerPluginSettings('intel-gpu', SettingsPage, true);

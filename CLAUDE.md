@@ -67,7 +67,7 @@ The plugin gracefully degrades when the GpuDevicePlugin CRD is not installed —
 - Resource prefix: `gpu.intel.com/`
 - Node labels: `intel.feature.node.kubernetes.io/gpu`, `node-role.kubernetes.io/gpu`, `node-role.kubernetes.io/igpu`
 - Pod selector: `app=intel-gpu-plugin`
-- Prometheus services: `kube-prometheus-stack-prometheus`, `prometheus-operated`, `prometheus` (monitoring namespace, port 9090)
+- Prometheus services: `kube-prometheus-stack-prometheus`, `prometheus-operated`, `prometheus` (monitoring namespace, port 9090) — configurable via plugin settings (see `src/api/pluginConfig.ts`)
 
 ## Code conventions
 

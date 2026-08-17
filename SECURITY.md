@@ -13,7 +13,7 @@ This plugin is **read-only**. It does not perform any write operations against t
 - Nodes
 - Pods (all namespaces)
 - GpuDevicePlugin CRDs (`deviceplugin.intel.com/v1`)
-- Prometheus metrics (via API proxy in `monitoring` namespace)
+- Prometheus metrics (via API proxy; namespace/service is configurable via plugin settings, defaults to `monitoring` namespace)
 
 All data is fetched through Headlamp's built-in API proxy, which respects the user's existing RBAC permissions.
 

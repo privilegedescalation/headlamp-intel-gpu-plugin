@@ -39,6 +39,7 @@ import {
   fetchGpuMetrics,
   formatPercent,
   formatWatts,
+  getCheckedServicesDescription,
   GpuChipMetrics,
   GpuMetrics,
 } from '../api/metrics';
@@ -277,8 +278,7 @@ export default function MetricsPage() {
               },
               {
                 name: 'Checked services',
-                value:
-                  'kube-prometheus-stack-prometheus:9090, prometheus-operated:9090, prometheus:9090 (monitoring namespace)',
+                value: getCheckedServicesDescription(),
               },
             ]}
           />
