@@ -30,6 +30,28 @@ Search for `headlamp-intel-gpu` in the Headlamp Plugin Manager (Settings → Plu
 - Optional: Node Feature Discovery with Intel GPU labels
 - Optional: kube-prometheus-stack with node-exporter for GPU power metrics
 
+## Configuration
+
+### Prometheus Service Discovery
+
+By default, the Metrics page discovers Prometheus by trying the following
+in-cluster services (in order):
+
+1. `monitoring/kube-prometheus-stack-prometheus:9090`
+2. `monitoring/prometheus-operated:9090`
+3. `monitoring/prometheus:9090`
+
+If your Prometheus is deployed in a different namespace or uses a different
+service name (e.g. `observability/monitoring-kube-prometheus-prometheus:9090`),
+configure it via the plugin settings page:
+
+**Settings → Plugins → intel-gpu**
+
+Set the **Prometheus Namespace**, **Prometheus Service Name**, and
+**Prometheus Port** fields. The configured service is tried first; if it is
+unreachable, the plugin falls back to the built-in default candidates. Leave
+all fields blank to use the defaults (backward-compatible with v1.1.0).
+
 ## RBAC
 
 This plugin is **read-only** and requires the following permissions:
@@ -50,6 +72,7 @@ src/
 ├── api/
 │   ├── k8s.ts                   # Types and helper functions
 │   ├── metrics.ts               # Prometheus GPU metrics
+│   ├── pluginConfig.ts          # ConfigStore-based plugin settings
 │   └── IntelGpuDataContext.tsx  # React context provider
 └── components/
     ├── OverviewPage.tsx          # Dashboard
@@ -57,6 +80,7 @@ src/
     ├── NodesPage.tsx             # GPU nodes
     ├── PodsPage.tsx              # GPU pods
     ├── MetricsPage.tsx           # Power metrics
+    ├── SettingsPage.tsx          # Plugin settings (Prometheus discovery)
     ├── NodeDetailSection.tsx     # Injected into Node detail view
     ├── PodDetailSection.tsx      # Injected into Pod detail view
     └── integrations/
@@ -79,7 +103,7 @@ npm run lint       # ESLint
 |---------|-------|-----|
 | No GPU nodes shown | No Intel GPU labels or resources on nodes | Install Intel Node Feature Discovery or Intel GPU device plugin |
 | CRD not available warning | GpuDevicePlugin CRD not installed | Install Intel device plugins operator — plugin still works without it |
-| No metrics data | Prometheus not found | Deploy kube-prometheus-stack in the `monitoring` namespace |
+| No metrics data | Prometheus not found | Deploy kube-prometheus-stack, or configure the Prometheus namespace/service via Settings → Plugins → intel-gpu |
 | Metrics show only discrete GPUs | Integrated GPUs lack hwmon | Expected — iGPU driver doesn't expose hwmon power data |
 
 ## Contributing

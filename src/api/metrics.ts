@@ -13,6 +13,7 @@
  */
 
 import { ApiProxy } from '@kinvolk/headlamp-plugin/lib';
+import { getPrometheusServiceCandidates } from './pluginConfig';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -56,14 +57,16 @@ interface PrometheusResponse {
 
 /**
  * Service discovery: find the Prometheus service.
- * Tries the kube-prometheus-stack default name; falls back to prometheus-operated.
+ *
+ * Tries user-configured service first (if set via plugin settings), then
+ * falls back to the built-in default candidates (kube-prometheus-stack,
+ * prometheus-operated, prometheus — all in the monitoring namespace).
+ *
+ * The candidate list is built dynamically from ConfigStore settings so
+ * deployments using a non-default namespace/service (e.g. observability /
+ * monitoring-kube-prometheus-prometheus) can be supported without code
+ * changes.
  */
-const PROMETHEUS_SERVICES = [
-  { namespace: 'monitoring', service: 'kube-prometheus-stack-prometheus', port: '9090' },
-  { namespace: 'monitoring', service: 'prometheus-operated', port: '9090' },
-  { namespace: 'monitoring', service: 'prometheus', port: '9090' },
-];
-
 async function queryPrometheus(query: string, prometheusPath: string): Promise<PrometheusResult[]> {
   const encoded = encodeURIComponent(query);
   const path = `${prometheusPath}/api/v1/query?query=${encoded}`;
@@ -75,7 +78,8 @@ async function queryPrometheus(query: string, prometheusPath: string): Promise<P
 }
 
 async function findPrometheusPath(): Promise<string | null> {
-  for (const { namespace, service, port } of PROMETHEUS_SERVICES) {
+  const candidates = getPrometheusServiceCandidates();
+  for (const { namespace, service, port } of candidates) {
     const basePath = `/api/v1/namespaces/${namespace}/services/${service}:${port}/proxy`;
     try {
       const raw = (await ApiProxy.request(`${basePath}/api/v1/query?query=1`, {
@@ -87,6 +91,17 @@ async function findPrometheusPath(): Promise<string | null> {
     }
   }
   return null;
+}
+
+/**
+ * Returns a human-readable list of service candidates that were checked
+ * during discovery.  Used for error reporting in the Metrics page.
+ */
+export function getCheckedServicesDescription(): string {
+  const candidates = getPrometheusServiceCandidates();
+  return candidates
+    .map(({ namespace, service, port }) => `${service}:${port} (${namespace} namespace)`)
+    .join(', ');
 }
 
 // ---------------------------------------------------------------------------
